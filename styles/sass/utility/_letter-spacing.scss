@@ -1,0 +1,9 @@
+@use "sass:math";
+// illustrator & photoshop letter spacing
+// ---------------------------------------------------------------------------
+@function letter-spacing( $letter-spacing ){
+	@return math.div($letter-spacing, 1000) * 1em;
+}
+@mixin letter-spacing( $target ){
+  letter-spacing: letter-spacing( $target );
+}

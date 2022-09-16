@@ -1,0 +1,337 @@
+@use "sass:math";
+
+/* argument */
+$border1: #c4c6c6 solid 1px;
+$colortext: #444;
+$colortxt1: #fff;
+$colorbg1: #000;
+$widthcm: 1000px;
+
+$browser_prefix: ("-webkit-", "-moz-", "-ms-", "-o-", "");
+@mixin add_prefix ($key, $value) {
+	@each $prefix in $browser_prefix {
+		#{$prefix}#{$key}: #{$value};
+	}
+}
+
+/* site style */
+@mixin text-hide{
+	overflow: hidden;
+	text-indent: -9999px;
+}
+
+
+/* [ opacity ]
+-------------------------------------------------*/
+@mixin opacity($num){
+	-ms-filter: alpha(opacity=$num); /* IE8 */
+	opacity: $num/100;
+	//display: inline-block\9;
+}
+
+/* [ display style ]
+-------------------------------------------------*/
+@mixin display-table{
+	display: table;
+	> *{
+		display: table-cell;
+		vertical-align: middle;
+	}
+}
+@mixin height-match{
+	display: block;
+	text-align: center;
+	> *{
+		vertical-align: middle;
+		display: inline-block;
+	}
+	&:before{
+		content:"";
+		height: 100%;
+		vertical-align: middle;
+		width: 0;
+		display: inline-block;
+	}
+}
+
+
+/* [ background-image ]
+-------------------------------------------------*/
+@mixin bgimg($url,$rep:repeat,$pos:left top,$color:none,$size:auto) {
+	background-image: url($url);
+	background-repeat: $rep;
+	background-position: $pos;
+	background-color: $color;
+	background-size: $size;
+}
+
+
+/* [ writing-mode ]
+-------------------------------------------------*/
+@mixin writing-mode( $orientation:'h', $direction:'rl' ) {
+	@if $orientation == 'v' {
+		// Vertical with direction, rl by default
+		-ms-writing-mode: tb- + $direction; // IE
+		@each $prefix in $browser_prefix {
+			#{$prefix}writing-mode: vertical- + $direction;
+		}
+	} @else {
+		// Default...
+		-ms-writing-mode: lr-tb; // IE
+		@each $prefix in $browser_prefix {
+			#{prefix}writing-mode: horizontal-tb;
+		}
+	}
+}
+
+/* [ illustrator & photoshop letter spacing ]
+-------------------------------------------------*/
+@function letter-spacing( $letter-spacing ){
+	@return math.div($letter-spacing, 1000) * 1em;
+}
+@mixin letter-spacing( $target ){
+	letter-spacing: letter-spacing( $target );
+}
+
+
+/* [ easy breakpoint ]
+-------------------------------------------------*/
+@mixin PC {
+	@include min-screen(768px) {
+		@content;
+	}
+}
+
+@mixin SP {
+	@include max-screen(767px) {
+		@content;
+	}
+}
+
+/* [ easy transform ]
+-------------------------------------------------*/
+@mixin transform($transforms) {
+	@include add_prefix(transform, $transforms);
+}
+
+// Author: Kyohei Maeda
+
+//aspect-ratio fixed box
+//==================================================
+@mixin aspect-ratio($width, $height) {
+	position: relative;
+	&:before{
+		display: block;
+		content: " ";
+		width: 100%;
+		padding-top: ($height / $width) * 100%;
+	}
+	> .content {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+}
+
+//font-size with rem
+//==================================================
+@mixin font-size($size: 14) {
+	font-size: $size + px;
+	font-size: math.div($size, 10)  + rem;
+}
+
+@mixin my_menu_effect($items, $delay, $direct) {
+	@each $item in $items {
+		&:nth-child(#{$item}) {
+			@include transition_c(#{$delay}ms, 'delay');
+		}
+		@if ($direct == "open") {
+			$delay: $delay + 50;
+		} @else {
+			$delay: $delay - 50;
+		}
+	}
+}
+
+@mixin transition_c ($content, $opt: "") {
+	@each $prefix in $browser_prefix {
+		@if ($opt == "") {
+			#{$prefix}transition: $content;
+		} @else {
+			#{$prefix}transition-#{$opt}: $content;
+		}
+	}
+}
+
+@mixin transform_c ($content) {
+	@each $prefix in $browser_prefix {
+		#{$prefix}transform: $content;
+	}
+}
+
+@mixin calc-css ($prefix, $content) {
+	#{$prefix}: -webkit-calc($content);
+	#{$prefix}: -moz-calc($content);
+	#{$prefix}: calc($content);
+}
+
+@mixin border ($content, $side: "") {
+	@if ($side == "") {
+		border: #{$content};
+	} @else {
+		border-#{$side}: #{$content};
+	}
+}
+
+@mixin border-radius ($radius, $side: "") {
+	@if ($side == "" ) {
+		@each $prefix in $browser_prefix {
+			#{$prefix}border-radius: $radius;
+		}
+	} @else {
+		@each $prefix in $browser_prefix {
+			#{$prefix}border-#{$side}-radius: $radius;
+		}
+	}
+}
+
+@mixin clearfix() {
+	&:before,
+	&:after {
+		content: " ";
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+}
+
+//==================================================
+// Black and White Opacity Functions
+// Call | .css { background: black(0.5); }
+//==================================================
+@function black($opacity) {
+	@return rgba(black, $opacity)
+}
+@function white($opacity) {
+	@return rgba(white, $opacity)
+}
+
+//==================================================
+// Centering
+// Call | .css { @include centerer; }
+//==================================================
+
+@mixin centerer {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+// If you want to be able to center in only one direction...
+
+@mixin centerer($horizontal: true, $vertical: true) {
+	position: absolute;
+	@if ($horizontal and $vertical) {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	} @else if ($horizontal) {
+		left: 50%;
+		transform: translate(-50%, 0);
+	} @else if ($vertical) {
+		top: 50%;
+		transform: translate(0, -50%);
+	}
+}
+
+//==================================================
+// Triangle helper mixin
+// @param {Direction} $direction - Triangle direction, either `top`, `right`, `bottom` or `left`
+// @param {Color} $color [currentcolor] - Triangle color
+// @param {Length} $size [1em] - Triangle size
+// Call | .css::before { @include triangle(bottom, #000, 5px); }
+//==================================================
+
+@mixin triangle($direction, $color: currentcolor, $size: 1em, $distance: 5px) {
+	@if not index(top right bottom left, $direction) {
+		@error "Direction must be either `top`, `right`, `bottom` or `left`.";
+	}
+
+	width: 0;
+	height: 0;
+	content: '';
+	z-index: 2;
+	margin: $distance;
+	border-#{opposite-position($direction)}: ($size * 1.5) solid $color;
+
+	$perpendicular-borders: $size solid transparent;
+
+	@if $direction == top or $direction == bottom {
+		border-left:   $perpendicular-borders;
+		border-right:  $perpendicular-borders;
+	} @else if $direction == right or $direction == left {
+		border-bottom: $perpendicular-borders;
+		border-top:    $perpendicular-borders;
+	}
+}
+
+/* [ writing-mode ]
+-------------------------------------------------*/
+@mixin writing-mode( $orientation:'h', $direction:'rl' ) {
+	@if $orientation == 'v' {
+		// Vertical with direction, rl by default
+		@include add_prefix(writing-mode, vertical- + $direction);
+		-ms-writing-mode: tb- + $direction; // IE
+	} @else {
+		// Default...
+		@include add_prefix(writing-mode, horizontal-tb);
+		-ms-writing-mode: lr-tb; // IE
+	}
+}
+
+// miltiple lines ellipsis
+//==================================================
+@mixin multiLineEllipsis($lineCount: 1){
+	overflow: hidden;
+	width: 100%;
+	-webkit-line-clamp: $lineCount;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-o-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+	white-space: normal;
+}
+
+// miltiple lines ellipsis for FF & IE
+//==================================================
+@mixin multiLineEllipsisForFF($lineHeight: 1.2em, $lineCount: 1, $bgColor: white){
+	overflow: hidden;
+	position: relative;
+	line-height: $lineHeight;
+	max-height: $lineHeight * $lineCount;
+	text-align: justify;
+	margin-right: -1.15em;
+	padding-right: 1.15em;
+	&:before {
+		content: '…';
+		position: absolute;
+		right: 0;
+		bottom: 0;
+	}
+	&:after {
+		content: '';
+		position: absolute;
+		right: 0;
+		width: 1.15em;
+		height: 1em;
+		margin-top: 0.2em;
+		background: $bgColor;
+	}
+	@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+		text-justify: inter-cluster;
+	}
+}

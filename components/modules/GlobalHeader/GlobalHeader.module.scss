@@ -1,0 +1,10 @@
+@import "@/styles/main";
+
+.Header {
+  position: relative;
+  height: 50px;
+  background-color: $alive-v-green;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}

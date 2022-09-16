@@ -1,0 +1,5 @@
+// 第一引数で基準となる画面幅のフォントサイズ、第二引数で基準となる画面幅を入力
+@function get_vw($size, $viewport:1300) {
+  $rate: 100 / $viewport;
+  @return $rate * $size * 1vw;
+}

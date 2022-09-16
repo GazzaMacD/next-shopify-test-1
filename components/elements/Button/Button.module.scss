@@ -1,0 +1,7 @@
+@import "@/styles/main";
+.Button {
+  &:hover {
+    filter: brightness(105%);
+    cursor: pointer;
+  }
+}

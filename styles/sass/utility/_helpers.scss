@@ -1,0 +1,33 @@
+// breakpoints
+// ---------------------------------------------------------------------------
+@mixin PC {
+	@include min-screen(768px) {
+		@content;
+	}
+}
+
+@mixin SP {
+	@include max-screen(767px) {
+		@content;
+	}
+}
+
+.pc {
+	@include SP {
+		display: none !important;
+	}
+}
+
+.sp {
+	@include PC {
+		display: none !important;
+	}
+}
+
+// IE Huck
+// ---------------------------------------------------------------------------
+@mixin ie {
+	@media all and (-ms-high-contrast:none) {
+		@content;
+	}
+}

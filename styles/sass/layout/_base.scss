@@ -1,0 +1,39 @@
+// fonts
+// ---------------------------------------------------------------------------
+// @font-face {
+// 	font-family: 'フォント名';
+// 	src: url('フォント名.eot');
+// 	src: url('フォント名.eot?iefix') format('eot'),
+// 		url('フォント名.woff') format('woff'),
+// 		url('フォント名.ttf') format('truetype'),
+// 		url('フォント名.svg#webfontjSpbZQRv') format('svg');
+// }
+
+// what
+
+// var
+// ---------------------------------------------------------------------------
+$gothic: "游ゴシック", YuGothic, "ヒラギノ角ゴ Pro", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", sans-serif;
+$serif: "游明朝", YuMincho, "ヒラギノ明朝 ProN W3", "Hiragino Mincho ProN", "HG明朝E", "ＭＳ Ｐ明朝", serif;
+
+
+
+// base
+// ---------------------------------------------------------------------------
+html {
+	font-size: 62.5%;
+	font-family: $gothic;
+}
+*{
+	@include font-size(14);
+	box-sizing: border-box;
+}
+img {
+	max-width: 100%;
+	height: auto;
+	vertical-align: bottom;
+}
+a{
+	color: inherit;
+	text-decoration: none;
+}
