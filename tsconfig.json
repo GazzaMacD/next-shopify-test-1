@@ -1,12 +1,22 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["components/*"],
-      "@/styles/*": ["styles/*"],
-      "@/common/*": ["common/*"]
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/styles/*": [
+        "styles/*"
+      ],
+      "@/common/*": [
+        "common/*"
+      ]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,10 +28,21 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    //"jsx": "preserve",
     "jsx": "preserve",
+    "jsxImportSource": "@emotion/react",
     "incremental": true,
-    "types": ["cypress", "@testing-library/cypress"]
+    "types": [
+      "cypress",
+      "@testing-library/cypress"
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

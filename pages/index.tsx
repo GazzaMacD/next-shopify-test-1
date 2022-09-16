@@ -6,14 +6,16 @@ import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
 import { Button } from "@/components/elements/Button";
 import styles from "@/styles/page-styles/Home.module.scss";
+import { CircleButton } from "@/components/lib";
+import * as colors from "@/common/js_styles/colors";
+
 // types
 import { TNextPageWithLayout } from "@/common/types";
 
 const Home: TNextPageWithLayout = (): JSX.Element => {
   const [showTestText, setShowTestText] = React.useState(false);
-  const complexObj = { nest: { complex: null } };
-  const cpyComplexObj = _.cloneDeep(complexObj);
-  console.log(cpyComplexObj);
+  //const cpyComplexObj = _.cloneDeep(complexObj);
+
   return (
     <>
       <Head>
@@ -24,12 +26,17 @@ const Home: TNextPageWithLayout = (): JSX.Element => {
 
       <div className={styles.Home}>
         <h1 className={styles.Home__title}>Next.js Project Starter</h1>
-        <br></br>
+        <CircleButton onClick={() => alert(`hi`)}>X</CircleButton>
         <Button clickHandler={() => setShowTestText(!showTestText)}>
           Test Button
         </Button>
-        <br></br>
         {showTestText && <p>Test text</p>}
+        <div
+          css={{
+            backgroundColor: `${colors.green}`,
+            height: `100px`,
+          }}
+        ></div>
       </div>
     </>
   );
