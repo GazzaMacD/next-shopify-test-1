@@ -1,6 +1,8 @@
+export const gql = String.raw;
+export const SHOPIFY_FRONT_URL = `https://french-fromage.myshopify.com/api/2021-07/graphql.json`;
 export const SITE_CONFIG = {
-  title: `Next.js starter`,
-  description: `Next.js starter`,
+  title: `Shopify Test`,
+  description: `Shopify Test`,
 };
 
 /*

@@ -18,3 +18,12 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.container {
+  margin: 0 auto;
+  width: calc(100% - 20px);
+  max-width: 1200px;
+}
+h1 {
+  font-size: calc(1.3rem + 3.6vw);
+}
