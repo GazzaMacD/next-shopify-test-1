@@ -1,5 +1,5 @@
 import Head from "next/head";
-
+import { CartProvider } from "@/common/contexts/cartContext";
 import { SITE_CONFIG } from "@/common/constants";
 
 type TBaseLayout = {
@@ -14,7 +14,7 @@ const BaseLayout = ({ children }: TBaseLayout): JSX.Element => {
         <meta name="description" content={SITE_CONFIG.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <>{children}</>
+      <CartProvider>{children}</CartProvider>
     </>
   );
 };
