@@ -1,5 +1,10 @@
 import type { AppProps } from "next/app";
-
+/*
+import {
+  ShopErrorBoundary,
+  DefaultErrorFallback,
+} from "@/components/elements/ErrorBoundary";
+*/
 import "@/styles/globals.scss";
 
 // types

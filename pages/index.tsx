@@ -53,6 +53,7 @@ const Home: TNextPageWithLayout<THomeProps> = ({ products }): JSX.Element => {
       <main className={styles.Home}>
         <div className="container">
           <h1>Shopify Next.js Test One</h1>
+
           {productsArr.length ? (
             <ul>
               {productsArr.map((product) => (
