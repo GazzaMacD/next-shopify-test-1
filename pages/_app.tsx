@@ -1,4 +1,5 @@
 import type { AppProps } from "next/app";
+import { CartProvider } from "@/common/contexts/cartContext";
 /*
 import {
   ShopErrorBoundary,
@@ -18,7 +19,11 @@ function MyApp({ Component, pageProps }: TAppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  return getLayout(<Component {...pageProps} />);
+  return getLayout(
+    <CartProvider>
+      <Component {...pageProps} />
+    </CartProvider>
+  );
 }
 
 export default MyApp;
