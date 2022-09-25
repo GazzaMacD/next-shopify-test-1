@@ -12,3 +12,11 @@ export const COLORS: { [key: string]: string } = {
   richBlack: `#010203`,
   aliveVGreen: `#00d1b3`,
 };
+/*
+ * Cart
+ */
+
+// Local Storage Keys Enum
+export enum ELS_Keys {
+  CART = `__cart__`,
+}

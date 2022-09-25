@@ -7,7 +7,7 @@ import { gql } from "@/common/constants";
 import { fetchShopifyGQL } from "@/common/utils/api";
 import styles from "@/styles/page-styles/Home.module.scss";
 import * as colors from "@/common/js_styles/colors";
-import { useCart } from "@/common/contexts/cartContext";
+import { useCart, EActionType } from "@/common/contexts/cartContext";
 // Types
 import { TNextPageWithLayout } from "@/common/types";
 
@@ -39,9 +39,13 @@ type TResponse = {
 //Components and Pages
 
 const Home: TNextPageWithLayout<THomeProps> = ({ products }): JSX.Element => {
-  const { state: cart, dispatch: cartDispatch } = useCart();
-  console.log(`cart`, cart);
-  console.log(`cartDispatch`, cartDispatch);
+  const {
+    state: cart,
+    addProduct,
+    remProduct,
+    incProduct,
+    decProduct,
+  } = useCart();
 
   let productsArr: TProduct[] = [];
   if (`edges` in products) {
@@ -62,7 +66,49 @@ const Home: TNextPageWithLayout<THomeProps> = ({ products }): JSX.Element => {
           {productsArr.length ? (
             <ul>
               {productsArr.map((product) => (
-                <li key={product.id}>{product.title}</li>
+                <li key={product.id}>
+                  <div>{product.title}</div>
+                  <button
+                    onClick={() =>
+                      addProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    add
+                  </button>
+                  <button
+                    onClick={() =>
+                      incProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() =>
+                      decProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={() =>
+                      remProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    X
+                  </button>
+                </li>
               ))}
             </ul>
           ) : (
@@ -104,8 +150,6 @@ export async function getStaticProps() {
 
   try {
     const { data, errors } = await fetchShopifyGQL<TResponse>({ query });
-    console.dir(data, { depth: null });
-    console.dir(errors, { depth: null });
     if (errors) {
       throw new Error(JSON.stringify(errors));
     }

@@ -51,3 +51,4 @@ class ShopErrorBoundary extends Component<TProps, TState> {
 
 export { ShopErrorBoundary };
 */
+export {};

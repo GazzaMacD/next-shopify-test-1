@@ -1,43 +1,45 @@
 import * as React from "react";
 import _ from "lodash";
 
-// cart reducer types and cart types
+// cart reducer, cart types and enums
+import { ELS_Keys } from "@/common/constants";
+
 export type TCartLineItem = {
   merchandiseId: string;
   quantity: number;
 };
 export type TCartLines = TCartLineItem[];
+export type TCartLinesDict = {
+  [id: string]: TCartLineItem;
+};
 
-export enum ActionType {
+export enum EActionType {
   ADD = `ADD`,
   INCREMENT = `INCREMENT`,
   DECREMENT = `DECREMENT`,
   REMOVE = `REMOVE`,
 }
-interface IPayloadId {
+type TPayloadProduct = {
   merchandiseId: string;
-}
-
-interface IPayloadFull extends IPayloadId {
   quantity: number;
-}
+};
 
 type TAction =
   | {
-      type: ActionType.ADD;
-      payload: IPayloadFull;
+      type: EActionType.ADD;
+      payload: TPayloadProduct;
     }
   | {
-      type: ActionType.INCREMENT;
-      payload: IPayloadId;
+      type: EActionType.INCREMENT;
+      payload: TPayloadProduct;
     }
   | {
-      type: ActionType.DECREMENT;
-      payload: IPayloadId;
+      type: EActionType.DECREMENT;
+      payload: TPayloadProduct;
     }
   | {
-      type: ActionType.REMOVE;
-      payload: IPayloadId;
+      type: EActionType.REMOVE;
+      payload: TPayloadProduct;
     };
 
 type TDispatch = (action: TAction) => void;
@@ -46,32 +48,35 @@ type TCartProviderProps = { children: React.ReactNode };
 /*
  * Cart Reducer
  */
-function cartReducer(state: TCartLines, action: TAction): TCartLines {
+function cartReducer(state: TCartLinesDict, action: TAction): TCartLinesDict {
+  const merchId = action.payload.merchandiseId;
+  const stateCpy = _.cloneDeep(state);
+
   switch (action.type) {
-    case ActionType.ADD: {
-      return [..._.cloneDeep(state), action.payload];
+    case EActionType.ADD: {
+      if (!(merchId in stateCpy)) {
+        stateCpy[merchId] = action.payload;
+      } else {
+        stateCpy[merchId].quantity =
+          stateCpy[merchId].quantity + action.payload.quantity;
+      }
+      return stateCpy;
     }
-    case ActionType.INCREMENT:
-      return _.cloneDeep(state).map((lineItem) => {
-        if (lineItem.merchandiseId === action.payload.merchandiseId) {
-          return { ...lineItem, quantity: lineItem.quantity + 1 };
-        }
-        return lineItem;
-      });
-    case ActionType.DECREMENT:
-      return _.cloneDeep(state).map((lineItem) => {
-        if (lineItem.merchandiseId === action.payload.merchandiseId) {
-          return {
-            ...lineItem,
-            quantity: lineItem.quantity > 1 ? lineItem.quantity - 1 : 0,
-          };
-        }
-        return lineItem;
-      });
-    case ActionType.REMOVE: {
-      return _.cloneDeep(state).filter(
-        (lineItem) => lineItem.merchandiseId !== action.payload.merchandiseId
-      );
+    case EActionType.INCREMENT: {
+      if (merchId in stateCpy) {
+        stateCpy[merchId].quantity = stateCpy[merchId].quantity + 1;
+      }
+      return stateCpy;
+    }
+    case EActionType.DECREMENT: {
+      if (merchId in stateCpy && stateCpy[merchId].quantity > 0) {
+        stateCpy[merchId].quantity = stateCpy[merchId].quantity - 1;
+      }
+      return stateCpy;
+    }
+    case EActionType.REMOVE: {
+      delete stateCpy[merchId];
+      return stateCpy;
     }
     default:
       throw new Error(`Unhandled action type - ${JSON.stringify(action)}`);
@@ -83,31 +88,82 @@ function cartReducer(state: TCartLines, action: TAction): TCartLines {
 
 const CartContext = React.createContext<
   | {
-      state: TCartLines;
+      state: TCartLinesDict;
       dispatch: TDispatch;
     }
   | undefined
 >(undefined);
 
-function CartProvider({ children }: TCartProviderProps) {
-  const initValue: TCartLines = [];
-  const [state, dispatch] = React.useReducer(
-    cartReducer,
-    initValue
-  ); /* need to implement localStorage here  and in useEffect 
+function init(initVal: TCartLinesDict) {
+  if (
+    typeof window !== `undefined` &&
+    window.localStorage.getItem(ELS_Keys.CART)
+  ) {
+    return JSON.parse(window.localStorage.getItem(ELS_Keys.CART) ?? ``);
+  }
+  return initVal;
+}
 
-  React.useEffect(( ) => )
-  */
+function CartProvider({ children }: TCartProviderProps) {
+  const initValue: TCartLinesDict = {};
+  const [state, dispatch] = React.useReducer(cartReducer, initValue, init);
+
+  React.useEffect(() => {
+    window.localStorage.setItem(ELS_Keys.CART, JSON.stringify(state));
+  }, [state]);
+
   const value = { state, dispatch };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
+
+const cartActions = {
+  addProduct() {
+    console.log(`add`);
+  },
+  incProduct() {
+    console.log(`inc`);
+  },
+  decProduct() {
+    console.log(`dec`);
+  },
+  remProduct() {
+    console.log(`rem`);
+  },
+};
 
 function useCart() {
   const context = React.useContext(CartContext);
   if (context === undefined) {
     throw new Error(`useCart must be used within a CartProvider`);
   }
-  return context;
+  const { state, dispatch } = context;
+
+  function addProduct(product: TPayloadProduct) {
+    dispatch({
+      type: EActionType.ADD,
+      payload: product,
+    });
+  }
+  function incProduct(product: TPayloadProduct) {
+    dispatch({
+      type: EActionType.INCREMENT,
+      payload: product,
+    });
+  }
+  function decProduct(product: TPayloadProduct) {
+    dispatch({
+      type: EActionType.DECREMENT,
+      payload: product,
+    });
+  }
+  function remProduct(product: TPayloadProduct) {
+    dispatch({
+      type: EActionType.REMOVE,
+      payload: product,
+    });
+  }
+
+  return { state, dispatch, addProduct, incProduct, remProduct, decProduct };
 }
 
 export { CartProvider, useCart };

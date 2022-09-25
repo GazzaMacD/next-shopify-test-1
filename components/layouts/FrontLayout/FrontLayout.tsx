@@ -3,16 +3,12 @@ import Head from "next/head";
 import { SITE_CONFIG } from "@/common/constants";
 import { Logo } from "@/components/elements/Logo";
 import { GlobalHeader } from "@/components/modules/GlobalHeader";
-import { useCart } from "@/common/contexts/cartContext";
 import styles from "./FrontLayout.module.scss";
 
 type TFLProps = {
   children: React.ReactNode;
 };
 const FrontLayout = ({ children }: TFLProps): JSX.Element => {
-  const { state: cart, dispatch: cartDispatch } = useCart();
-  console.log(`cart`, cart);
-  console.log(`cartDispatch`, cartDispatch);
   return (
     <>
       <Head>
