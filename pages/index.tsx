@@ -1,43 +1,121 @@
 import * as React from "react";
-import _ from "lodash";
 import Head from "next/head";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
-import { Button } from "@/components/elements/Button";
+import { gql } from "@/common/constants";
+import { fetchShopifyGQL } from "@/common/utils/api";
 import styles from "@/styles/page-styles/Home.module.scss";
-import { CircleButton } from "@/components/lib";
 import * as colors from "@/common/js_styles/colors";
-
-// types
+import { useCart, EActionType } from "@/common/contexts/cartContext";
+// Types
 import { TNextPageWithLayout } from "@/common/types";
 
-const Home: TNextPageWithLayout = (): JSX.Element => {
-  const [showTestText, setShowTestText] = React.useState(false);
-  //const cpyComplexObj = _.cloneDeep(complexObj);
+type TProduct = {
+  id: string;
+  title: string;
+};
 
+type TProducts = {
+  edges: {
+    node: TProduct;
+  }[];
+};
+
+type THomeProps = {
+  products: TProducts | Record<never, never>;
+};
+type TErrors = {
+  [key: string]: unknown;
+}[];
+
+type TResponse = {
+  data?: {
+    products: TProducts;
+  };
+  errors?: TErrors;
+};
+
+//Components and Pages
+
+const Home: TNextPageWithLayout<THomeProps> = ({ products }): JSX.Element => {
+  const {
+    state: cart,
+    addProduct,
+    remProduct,
+    incProduct,
+    decProduct,
+  } = useCart();
+
+  let productsArr: TProduct[] = [];
+  if (`edges` in products) {
+    productsArr = products.edges.map((edge) => edge.node);
+  }
   return (
     <>
       <Head>
-        <title>Next App</title>
-        <meta name="description" content="description here" />
+        <title>Shopify Text</title>
+        <meta name="description" content="First text of shopfiy with next.js" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={styles.Home}>
-        <h1 className={styles.Home__title}>Next.js Project Starter</h1>
-        <CircleButton onClick={() => alert(`hi`)}>X</CircleButton>
-        <Button clickHandler={() => setShowTestText(!showTestText)}>
-          Test Button
-        </Button>
-        {showTestText && <p>Test text</p>}
-        <div
-          css={{
-            backgroundColor: `${colors.green}`,
-            height: `100px`,
-          }}
-        ></div>
-      </div>
+      <main className={styles.Home}>
+        <div className="container">
+          <h1>Shopify Next.js Test One</h1>
+
+          {productsArr.length ? (
+            <ul>
+              {productsArr.map((product) => (
+                <li key={product.id}>
+                  <div>{product.title}</div>
+                  <button
+                    onClick={() =>
+                      addProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    add
+                  </button>
+                  <button
+                    onClick={() =>
+                      incProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() =>
+                      decProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={() =>
+                      remProduct({
+                        merchandiseId: product.id,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    X
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Sorry no products at this time</p>
+          )}
+        </div>
+      </main>
     </>
   );
 };
@@ -51,3 +129,37 @@ Home.getLayout = function getLayout(page: React.ReactElement) {
 };
 
 export default Home;
+
+/*
+ * SSR functions
+ */
+
+export async function getStaticProps() {
+  const query = gql`
+    {
+      products(first: 3) {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const { data, errors } = await fetchShopifyGQL<TResponse>({ query });
+    if (errors) {
+      throw new Error(JSON.stringify(errors));
+    }
+    return {
+      props: {
+        products: data?.products ?? {},
+      },
+    };
+  } catch (error) {
+    console.log(`\n=={ Home GetStaticProps }==\n`);
+    console.error(error);
+  }
+}

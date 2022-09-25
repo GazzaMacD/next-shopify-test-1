@@ -3,8 +3,8 @@
 .Header {
   position: relative;
   height: 50px;
-  background-color: $alive-v-green;
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  box-shadow: 0px 3px 6px 0px rgba(111, 111, 111, 0.15);
 }

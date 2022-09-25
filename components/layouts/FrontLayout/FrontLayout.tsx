@@ -19,7 +19,7 @@ const FrontLayout = ({ children }: TFLProps): JSX.Element => {
       <GlobalHeader>
         <Logo />
       </GlobalHeader>
-      <div className={styles.Content}>{children}</div>
+      {children}
     </>
   );
 };
