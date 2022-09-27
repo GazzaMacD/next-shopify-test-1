@@ -12,7 +12,7 @@ const BaseLayout = ({ children }: TBaseLayout): JSX.Element => {
       <Head>
         <title>{SITE_CONFIG.title}</title>
         <meta name="description" content={SITE_CONFIG.description} />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/cheese.png" />
       </Head>
       <CartProvider>{children}</CartProvider>
     </>

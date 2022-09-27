@@ -116,21 +116,6 @@ function CartProvider({ children }: TCartProviderProps) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-const cartActions = {
-  addProduct() {
-    console.log(`add`);
-  },
-  incProduct() {
-    console.log(`inc`);
-  },
-  decProduct() {
-    console.log(`dec`);
-  },
-  remProduct() {
-    console.log(`rem`);
-  },
-};
-
 function useCart() {
   const context = React.useContext(CartContext);
   if (context === undefined) {
