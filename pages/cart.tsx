@@ -10,10 +10,13 @@ import { fetchShopifyGQL } from "@/common/utils/api";
 import styles from "@/styles/page-styles/Cart.module.scss";
 import * as colors from "@/common/js_styles/colors";
 import { useCart, EActionType } from "@/common/contexts/cartContext";
+import { currency } from "@/common/utils/general";
+import { DEFAULT_CURRENCY } from "@/common/constants";
 // Types
 import { TNextPageWithLayout } from "@/common/types";
 
 import { redirect } from "next/dist/server/api-utils";
+import { is } from "cypress/types/bluebird";
 
 const Cart: TNextPageWithLayout = (): JSX.Element => {
   return (
@@ -59,12 +62,16 @@ function CartTable() {
     remProduct,
     incProduct,
     decProduct,
+    perProductTotal,
+    cartTotal,
   } = useCart();
 
   const [isEmpty, setIsEmpty] = React.useState(true);
   React.useEffect(() => {
     setIsEmpty(!Object.values(cart).length);
   }, [cart]);
+
+  const currCode = isEmpty ? `EUR` : Object.values(cart)[0].currencyCode;
 
   return (
     <div className={styles.CTable}>
@@ -79,15 +86,57 @@ function CartTable() {
         </table>
       ) : (
         <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Image</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Line Total</th>
+            </tr>
+          </thead>
           <tbody>
             {Object.values(cart).map((product) => {
               return (
                 <tr key={product.merchandiseId}>
+                  <td>{product.title}</td>
+                  <td>
+                    <Image
+                      src={product.src}
+                      alt={product.altText}
+                      layout="fill"
+                      objectFit="cover"
+                      objectPosition="center"
+                    />
+                  </td>
                   <td>{product.quantity}</td>
+                  <td>
+                    {currency({
+                      price: product.price,
+                      code: product.currencyCode,
+                    })}
+                  </td>
+                  <td>
+                    {currency({
+                      price: String(
+                        perProductTotal({
+                          price: product.price,
+                          quantity: product.quantity,
+                        })
+                      ),
+                      code: product.currencyCode,
+                    })}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
+          <tfoot>
+            <tr>
+              <th colSpan={4}>Total Price</th>
+              <th>{currency({ price: String(cartTotal()), code: `EUR` })}</th>
+            </tr>
+          </tfoot>
         </table>
       )}
     </div>

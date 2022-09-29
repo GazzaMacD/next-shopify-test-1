@@ -150,8 +150,31 @@ function useCart() {
       payload: product,
     });
   }
+  function perProductTotal({
+    price,
+    quantity,
+  }: {
+    price: string;
+    quantity: number;
+  }): number {
+    return Number(price) * quantity;
+  }
+  function cartTotal() {
+    return Object.values(state).reduce((prev, curr) => {
+      return prev + Number(curr.price) * curr.quantity;
+    }, 0);
+  }
 
-  return { state, dispatch, addProduct, incProduct, remProduct, decProduct };
+  return {
+    state,
+    dispatch,
+    addProduct,
+    incProduct,
+    remProduct,
+    decProduct,
+    perProductTotal,
+    cartTotal,
+  };
 }
 
 export { CartProvider, useCart };

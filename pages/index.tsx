@@ -10,6 +10,7 @@ import { fetchShopifyGQL } from "@/common/utils/api";
 import styles from "@/styles/page-styles/Home.module.scss";
 import * as colors from "@/common/js_styles/colors";
 import { useCart, EActionType } from "@/common/contexts/cartContext";
+import { currency } from "@/common/utils/general";
 // Types
 import { TNextPageWithLayout, TProduct } from "@/common/types";
 import { TProductQ } from "@/common/contexts/cartContext";
@@ -138,7 +139,7 @@ const Home: TNextPageWithLayout<THomeProps> = ({ products }): JSX.Element => {
           {products.length ? (
             <ul className={styles.Products}>
               {products.map((product) => (
-                <li key={product.id} className={styles.Product}>
+                <li key={product.merchandiseId} className={styles.Product}>
                   <div className={styles.Product__image}>
                     <Image
                       src={product.src}
@@ -233,12 +234,6 @@ export async function getStaticProps() {
 }
 
 // helper functions
-function currency({ price, code }: { price: string; code: string }) {
-  return new Intl.NumberFormat(`en`, {
-    style: `currency`,
-    currency: code,
-  }).format(Number(price));
-}
 function createProducts(productEdges: TAPIEdges): TProducts {
   let products: TProducts = [];
   if (!productEdges.length) {

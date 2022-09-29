@@ -15,7 +15,7 @@ export const COLORS: { [key: string]: string } = {
 /*
  * Cart
  */
-
+export const DEFAULT_CURRENCY = `EUR`;
 // Local Storage Keys Enum
 export enum ELS_Keys {
   CART = `__cart__`,
