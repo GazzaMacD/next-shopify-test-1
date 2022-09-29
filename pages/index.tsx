@@ -11,8 +11,8 @@ import styles from "@/styles/page-styles/Home.module.scss";
 import * as colors from "@/common/js_styles/colors";
 import { useCart, EActionType } from "@/common/contexts/cartContext";
 // Types
-import { TNextPageWithLayout } from "@/common/types";
-import { redirect } from "next/dist/server/api-utils";
+import { TNextPageWithLayout, TProduct } from "@/common/types";
+import { TProductQ } from "@/common/contexts/cartContext";
 
 type TAPIPrice = {
   amount: string;
@@ -31,7 +31,7 @@ type TAPIImage = {
 
 type TAPIImages = { edges: TAPIImage[] };
 
-type TAPIProduct = {
+type TAPTProduct = {
   id: string;
   title: string;
   description: string;
@@ -45,34 +45,22 @@ type TErrors = {
   [key: string]: unknown;
 }[];
 
-type TAPIEdges = { node: TAPIProduct }[];
+type TAPIEdges = { node: TAPTProduct }[];
 
-type TAPIProducts = {
+type TAPTProducts = {
   edges: {
-    node: TAPIProduct;
+    node: TAPTProduct;
   }[];
 };
 
 type TAPIResponse = {
   data?: {
-    products: TAPIProducts;
+    products: TAPTProducts;
   };
   errors?: TErrors;
 };
 
 // Types for component
-
-type TProduct = {
-  id: string;
-  title: string;
-  description: string;
-  handle: string;
-  productType: string;
-  price: string;
-  currencyCode: string;
-  altText: string;
-  src: string;
-};
 
 type TProducts = TProduct[];
 
@@ -82,12 +70,10 @@ type THomeProps = {
 
 //Components and Pages
 type TControlsProps = {
-  id: string;
-  price: string;
-  currencyCode: string;
+  product: TProduct;
 };
 
-const ProductCardControls = ({ id, price, currencyCode }: TControlsProps) => {
+const ProductCardControls = ({ product }: TControlsProps) => {
   const {
     state: cart,
     addProduct,
@@ -95,55 +81,38 @@ const ProductCardControls = ({ id, price, currencyCode }: TControlsProps) => {
     incProduct,
     decProduct,
   } = useCart();
-  const isInCart = id in cart;
+  // inCart --> in useEffect to avoid hydration errors
+  const [inCart, setInCart] = React.useState(false);
+  React.useEffect(() => {
+    setInCart(product.merchandiseId in cart);
+  }, [cart, product.merchandiseId]);
+
   return (
     <div className={styles.Controls}>
       <div className={styles.Controls__quantity}>
-        <button
-          onClick={() =>
-            decProduct({
-              merchandiseId: id,
-              quantity: 1,
-            })
-          }
-        >
-          -
-        </button>
-        <span>{isInCart ? cart[id].quantity : 0}</span>
-        <button
-          onClick={() =>
-            incProduct({
-              merchandiseId: id,
-              quantity: 1,
-            })
-          }
-        >
-          +
-        </button>
+        <button onClick={() => decProduct(product)}>-</button>
+        <span>
+          {inCart && cart[product.merchandiseId]?.quantity
+            ? cart[product.merchandiseId].quantity
+            : 0}
+        </span>
+        <button onClick={() => incProduct(product)}>+</button>
       </div>
       <div className={styles.Controls__add}>
-        <span>{currency({ price: price, code: currencyCode })}</span>
-        {isInCart ? (
+        <span>
+          {currency({ price: product.price, code: product.currencyCode })}
+        </span>
+        {inCart ? (
           <div
             className={styles.Controls__removeButton}
-            onClick={() =>
-              remProduct({
-                merchandiseId: id,
-                quantity: 1,
-              })
-            }
+            onClick={() => remProduct(product)}
           >
             <FaTrashAlt />
           </div>
         ) : (
           <div
             className={styles.Controls__addButton}
-            onClick={() =>
-              addProduct({
-                merchandiseId: id,
-                quantity: 1,
-              })
-            }
+            onClick={() => addProduct({ ...product, quantity: 1 })}
           >
             <FaCartPlus />
           </div>
@@ -184,16 +153,14 @@ const Home: TNextPageWithLayout<THomeProps> = ({ products }): JSX.Element => {
                     {product.title}
                   </h3>
                   <p>{product.description}</p>
-                  <ProductCardControls
-                    id={product.id}
-                    price={product.price}
-                    currencyCode={product.currencyCode}
-                  />
+                  <ProductCardControls product={product} />
                 </li>
               ))}
             </ul>
           ) : (
-            <p>Sorry no products at this time</p>
+            <ul>
+              <li>Sorry no products at this time</li>
+            </ul>
           )}
         </div>
       </main>
@@ -280,7 +247,7 @@ function createProducts(productEdges: TAPIEdges): TProducts {
   products = productEdges.map((apiNode) => {
     const product = apiNode.node;
     return {
-      id: product.id,
+      merchandiseId: product.id,
       title: product.title,
       description: product.description,
       handle: product.handle,

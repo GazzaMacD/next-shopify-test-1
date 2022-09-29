@@ -8,8 +8,18 @@ export type TNextPageWithLayout<P = Record<string, never>, IP = P> = NextPage<
   getLayout?: (page: React.ReactElement) => React.ReactNode;
 };
 
-/* Next JS Layouts
-export type TNextPageWithLayout<Props> = NextPage<Props> & {
-  getLayout?: (page: React.ReactElement) => React.ReactNode;
+/*
+ * Cart & Product Types
+ */
+
+export type TProduct = {
+  merchandiseId: string;
+  title: string;
+  description: string;
+  handle: string;
+  productType: string;
+  price: string;
+  currencyCode: string;
+  altText: string;
+  src: string;
 };
-*/

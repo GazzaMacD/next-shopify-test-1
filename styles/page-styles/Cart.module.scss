@@ -1,0 +1,12 @@
+@import "@/styles/main";
+.Cart {
+  width: 100%;
+  display: flex;
+}
+.CTable {
+  width: calc(100% * (9 / 12));
+}
+.CSummary {
+  width: calc(100% * (3 / 12));
+  margin-left: 2rem;
+}

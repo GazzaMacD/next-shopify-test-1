@@ -3,14 +3,19 @@ import _ from "lodash";
 
 // cart reducer, cart types and enums
 import { ELS_Keys } from "@/common/constants";
+import { TProduct } from "@/common/types";
+
+export type TProductNoQ = TProduct;
+export type TProductQ = TProduct & {
+  quantity: number;
+};
 
 export type TCartLineItem = {
   merchandiseId: string;
   quantity: number;
 };
-export type TCartLines = TCartLineItem[];
 export type TCartLinesDict = {
-  [id: string]: TCartLineItem;
+  [id: string]: TProductQ;
 };
 
 export enum EActionType {
@@ -19,27 +24,23 @@ export enum EActionType {
   DECREMENT = `DECREMENT`,
   REMOVE = `REMOVE`,
 }
-type TPayloadProduct = {
-  merchandiseId: string;
-  quantity: number;
-};
 
 type TAction =
   | {
       type: EActionType.ADD;
-      payload: TPayloadProduct;
+      payload: TProductQ;
     }
   | {
       type: EActionType.INCREMENT;
-      payload: TPayloadProduct;
+      payload: TProduct;
     }
   | {
       type: EActionType.DECREMENT;
-      payload: TPayloadProduct;
+      payload: TProduct;
     }
   | {
       type: EActionType.REMOVE;
-      payload: TPayloadProduct;
+      payload: TProduct;
     };
 
 type TDispatch = (action: TAction) => void;
@@ -69,8 +70,10 @@ function cartReducer(state: TCartLinesDict, action: TAction): TCartLinesDict {
       return stateCpy;
     }
     case EActionType.DECREMENT: {
-      if (merchId in stateCpy && stateCpy[merchId].quantity > 0) {
+      if (merchId in stateCpy && stateCpy[merchId].quantity > 1) {
         stateCpy[merchId].quantity = stateCpy[merchId].quantity - 1;
+      } else if (merchId in stateCpy && stateCpy[merchId].quantity == 1) {
+        delete stateCpy[merchId];
       }
       return stateCpy;
     }
@@ -123,25 +126,25 @@ function useCart() {
   }
   const { state, dispatch } = context;
 
-  function addProduct(product: TPayloadProduct) {
+  function addProduct(product: TProductQ) {
     dispatch({
       type: EActionType.ADD,
       payload: product,
     });
   }
-  function incProduct(product: TPayloadProduct) {
+  function incProduct(product: TProduct) {
     dispatch({
       type: EActionType.INCREMENT,
       payload: product,
     });
   }
-  function decProduct(product: TPayloadProduct) {
+  function decProduct(product: TProduct) {
     dispatch({
       type: EActionType.DECREMENT,
       payload: product,
     });
   }
-  function remProduct(product: TPayloadProduct) {
+  function remProduct(product: TProduct) {
     dispatch({
       type: EActionType.REMOVE,
       payload: product,
