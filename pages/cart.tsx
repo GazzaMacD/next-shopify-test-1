@@ -1,23 +1,17 @@
 import * as React from "react";
 import Head from "next/head";
 import Image from "next/image";
-import { FaCartPlus, FaTrashAlt } from "react-icons/fa";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
-import { gql } from "@/common/constants";
 import { CartIncDec } from "@/components/elements/CartIncDec";
-import { fetchShopifyGQL } from "@/common/utils/api";
+import { RemoveProdBtn } from "@/components/elements/RemoveProdBtn";
 import styles from "@/styles/page-styles/Cart.module.scss";
-import * as colors from "@/common/js_styles/colors";
-import { useCart, EActionType } from "@/common/contexts/cartContext";
+import { useCart } from "@/common/contexts/cartContext";
 import { currency } from "@/common/utils/general";
 import { DEFAULT_CURRENCY } from "@/common/constants";
 // Types
 import { TNextPageWithLayout } from "@/common/types";
-
-import { redirect } from "next/dist/server/api-utils";
-import { is } from "cypress/types/bluebird";
 
 const Cart: TNextPageWithLayout = (): JSX.Element => {
   return (
@@ -56,22 +50,17 @@ export default Cart;
 
 // 9/12
 function CartTable() {
-  const {
-    state: cart,
-    addProduct,
-    remProduct,
-    incProduct,
-    decProduct,
-    perProductTotal,
-    cartTotal,
-  } = useCart();
-
+  const { state: cart, perProductTotal, cartTotal } = useCart();
   const [isEmpty, setIsEmpty] = React.useState(true);
+  const [currCode, setCurrCode] = React.useState(DEFAULT_CURRENCY);
   React.useEffect(() => {
     setIsEmpty(!Object.values(cart).length);
   }, [cart]);
-
-  const currCode = isEmpty ? `EUR` : Object.values(cart)[0].currencyCode;
+  React.useEffect(() => {
+    if (!isEmpty) {
+      setCurrCode(Object.values(cart)[0].currencyCode);
+    }
+  }, [isEmpty]);
 
   return (
     <div className={styles.CTable}>
@@ -116,7 +105,7 @@ function CartTable() {
                   <td>
                     {currency({
                       price: product.price,
-                      code: product.currencyCode,
+                      code: currCode,
                     })}
                   </td>
                   <td>
@@ -127,10 +116,12 @@ function CartTable() {
                           quantity: product.quantity,
                         })
                       ),
-                      code: product.currencyCode,
+                      code: currCode,
                     })}
                   </td>
-                  <td>del</td>
+                  <td>
+                    <RemoveProdBtn product={product} />
+                  </td>
                 </tr>
               );
             })}
@@ -138,7 +129,9 @@ function CartTable() {
           <tfoot>
             <tr>
               <th colSpan={4}>Total Price</th>
-              <th>{currency({ price: String(cartTotal()), code: `EUR` })}</th>
+              <th>
+                {currency({ price: String(cartTotal()), code: currCode })}
+              </th>
               <th>
                 <button>empty cart</button>
               </th>
