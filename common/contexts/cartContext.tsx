@@ -3,12 +3,7 @@ import _ from "lodash";
 
 // cart reducer, cart types and enums
 import { ELS_Keys } from "@/common/constants";
-import { TProduct } from "@/common/types";
-
-export type TProductNoQ = TProduct;
-export type TProductQ = TProduct & {
-  quantity: number;
-};
+import { TProduct, TProductQ } from "@/common/types";
 
 export type TCartLineItem = {
   merchandiseId: string;
@@ -32,11 +27,11 @@ type TAction =
     }
   | {
       type: EActionType.INCREMENT;
-      payload: TProduct;
+      payload: TProduct | TProductQ;
     }
   | {
       type: EActionType.DECREMENT;
-      payload: TProduct;
+      payload: TProduct | TProductQ;
     }
   | {
       type: EActionType.REMOVE;

@@ -23,3 +23,7 @@ export type TProduct = {
   altText: string;
   src: string;
 };
+export type TProductNoQ = TProduct;
+export type TProductQ = TProduct & {
+  quantity: number;
+};
