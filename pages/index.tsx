@@ -11,9 +11,9 @@ import styles from "@/styles/page-styles/Home.module.scss";
 import * as colors from "@/common/js_styles/colors";
 import { useCart, EActionType } from "@/common/contexts/cartContext";
 import { currency } from "@/common/utils/general";
+import { CartIncDec } from "@/components/elements/CartIncDec";
 // Types
 import { TNextPageWithLayout, TProduct } from "@/common/types";
-import { TProductQ } from "@/common/contexts/cartContext";
 
 type TAPIPrice = {
   amount: string;
@@ -90,15 +90,7 @@ const ProductCardControls = ({ product }: TControlsProps) => {
 
   return (
     <div className={styles.Controls}>
-      <div className={styles.Controls__quantity}>
-        <button onClick={() => decProduct(product)}>-</button>
-        <span>
-          {inCart && cart[product.merchandiseId]?.quantity
-            ? cart[product.merchandiseId].quantity
-            : 0}
-        </span>
-        <button onClick={() => incProduct(product)}>+</button>
-      </div>
+      <CartIncDec product={product} />
       <div className={styles.Controls__add}>
         <span>
           {currency({ price: product.price, code: product.currencyCode })}

@@ -6,6 +6,7 @@ import { FaCartPlus, FaTrashAlt } from "react-icons/fa";
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
 import { gql } from "@/common/constants";
+import { CartIncDec } from "@/components/elements/CartIncDec";
 import { fetchShopifyGQL } from "@/common/utils/api";
 import styles from "@/styles/page-styles/Cart.module.scss";
 import * as colors from "@/common/js_styles/colors";
@@ -32,7 +33,6 @@ const Cart: TNextPageWithLayout = (): JSX.Element => {
           <h1>Your Cart</h1>
           <div className={styles.Cart}>
             <CartTable />
-            <CartSummary />
           </div>
         </div>
       </main>
@@ -93,6 +93,7 @@ function CartTable() {
               <th>Quantity</th>
               <th>Unit Price</th>
               <th>Line Total</th>
+              <th>Remove</th>
             </tr>
           </thead>
           <tbody>
@@ -109,7 +110,9 @@ function CartTable() {
                       objectPosition="center"
                     />
                   </td>
-                  <td>{product.quantity}</td>
+                  <td>
+                    <CartIncDec product={product} />
+                  </td>
                   <td>
                     {currency({
                       price: product.price,
@@ -127,6 +130,7 @@ function CartTable() {
                       code: product.currencyCode,
                     })}
                   </td>
+                  <td>del</td>
                 </tr>
               );
             })}
@@ -135,21 +139,13 @@ function CartTable() {
             <tr>
               <th colSpan={4}>Total Price</th>
               <th>{currency({ price: String(cartTotal()), code: `EUR` })}</th>
+              <th>
+                <button>empty cart</button>
+              </th>
             </tr>
           </tfoot>
         </table>
       )}
-    </div>
-  );
-}
-// 3/12
-function CartSummary() {
-  const { state: cart } = useCart();
-  const cartArr = Object.values(cart);
-  const isEmpty = !cartArr.length;
-  return (
-    <div className={styles.CSummary}>
-      <h2>Cart Summary</h2>
     </div>
   );
 }
