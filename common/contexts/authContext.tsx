@@ -13,7 +13,6 @@ export type TAuthState =
         email: string;
         firstName?: string;
         lastName?: string;
-        phone?: string;
         acceptsMarketing?: boolean;
       };
       accessToken?: string;
@@ -26,17 +25,6 @@ export type TCreateCustomerPayload = {
   email: string;
   firstName?: string;
   lastName?: string;
-  phone?: string;
-  acceptsMarketing?: boolean;
-};
-
-export type TCreateCustomer = {
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  displayName?: string;
   acceptsMarketing?: boolean;
 };
 
@@ -74,22 +62,25 @@ type TAuthErrors = {
   message: string;
 }[];
 // createCustomer
-type TAPICreateCustomer = {
+type TCreateCustomer = {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  phone: string;
   acceptsMarketing: boolean;
 };
-type TAPICreateCustomerSuccess = TAPICreateCustomer & {
+type TAPICreatedCustomer = {
+  email: string;
   displayName: string;
+  firstName: string;
+  lastName: string;
+  acceptsMarketing: boolean;
 };
 type TAPICreateCustomerResponse = {
   data?: {
     customerCreate: {
-      customer: null | TAPICreateCustomerSuccess;
-      customerUserErrors: null | TAuthErrors;
+      customer: null | TAPICreatedCustomer;
+      customerUserErrors: TAuthErrors;
     };
   };
   errors?: Record<string, unknown>[];
@@ -131,6 +122,10 @@ function initAuth(initVal: TAuthState) {
   return initVal;
 }
 
+/*
+ * AuthProvider
+ */
+
 function AuthProvider({ children }: TAuthProviderProps) {
   const initValue: TAuthState = {};
   const [state, dispatch] = React.useReducer(authReducer, initValue, initAuth);
@@ -142,10 +137,10 @@ function AuthProvider({ children }: TAuthProviderProps) {
   const value = { state, dispatch };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
+
 /*
  * useAuth Custom Hook
  */
-
 function useAuth() {
   const context = React.useContext(CartContext);
   if (context === undefined) {
@@ -184,23 +179,8 @@ function useAuth() {
         });
       if (errors) {
         throw new Error(JSON.stringify(errors));
-      } else if (data && data.customerCreate.customerUserErrors) {
-        return {
-          success: false,
-          data: null,
-          errors: data.customerCreate.customerUserErrors,
-        };
-      } else if (data && data.customerCreate.customer) {
-        //use dispatch here
-        dispatch({
-          type: EAuthActionType.CREATE,
-          payload: data.customerCreate.customer,
-        });
-        return {
-          success: true,
-          errors: null,
-          data: data.customerCreate.customer,
-        };
+      } else if (data) {
+        return data.customerCreate;
       } else {
         throw new Error(`should not be here`);
       }
