@@ -69,13 +69,17 @@ type TCreateCustomer = {
   lastName: string;
   acceptsMarketing: boolean;
 };
-type TAPICreateCustomer = TCreateCustomer & {
+type TAPICreatedCustomer = {
+  email: string;
   displayName: string;
+  firstName: string;
+  lastName: string;
+  acceptsMarketing: boolean;
 };
 type TAPICreateCustomerResponse = {
   data?: {
     customerCreate: {
-      customer: null | TAPICreateCustomer;
+      customer: null | TAPICreatedCustomer;
       customerUserErrors: TAuthErrors;
     };
   };
