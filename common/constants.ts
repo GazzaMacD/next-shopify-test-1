@@ -19,4 +19,5 @@ export const DEFAULT_CURRENCY = `EUR`;
 // Local Storage Keys Enum
 export enum ELS_Keys {
   CART = `__cart__`,
+  AUTH = `__azx__`,
 }
