@@ -1,0 +1,28 @@
+.AuthForm {
+  margin: 0 auto;
+  max-width: 350px;
+  padding: 20px;
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+  }
+  div {
+    margin-bottom: 10px;
+  }
+  &__text {
+    display: flex;
+    flex-direction: column;
+    input {
+      padding: 5px;
+    }
+  }
+  &__check {
+    display: flex;
+    flex-direction: row;
+  }
+  label {
+    text-transform: capitalize;
+    margin-bottom: 5px;
+  }
+}

@@ -76,14 +76,14 @@ function CreateCustomerForm() {
   }
 
   return (
-    <div>
+    <div className={styles.AuthForm}>
       <h2>Create Account</h2>
       <form noValidate onSubmit={handleSubmit}>
-        <div>
+        <div className={styles.AuthForm__text}>
           <label htmlFor="email">email</label>
           <input type="email" id="email" name="email" onChange={handleChange} />
         </div>
-        <div>
+        <div className={styles.AuthForm__text}>
           <label htmlFor="firstName">given name</label>
           <input
             type="text"
@@ -92,7 +92,7 @@ function CreateCustomerForm() {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className={styles.AuthForm__text}>
           <label htmlFor="lastName">family name</label>
           <input
             type="text"
@@ -101,7 +101,7 @@ function CreateCustomerForm() {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className={styles.AuthForm__text}>
           <label htmlFor="password">password</label>
           <input
             type="password"
@@ -110,7 +110,7 @@ function CreateCustomerForm() {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className={styles.AuthForm__row}>
           <input
             type="checkbox"
             id="acceptsMarketing"
