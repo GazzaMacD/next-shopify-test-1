@@ -3,7 +3,7 @@ import Head from "next/head";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
-import { useAuth } from "@/common/contexts/authContext";
+import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
 import styles from "@/styles/page-styles/Authtesting.module.scss";
 
 // Types
@@ -49,15 +49,17 @@ type TCreateCustomerValues = {
 type TStatus = `idle` | `pending` | `success` | `error`;
 
 function CreateCustomerForm() {
-  const [status, setStatus] = React.useState<TStatus>(`idle`);
-  const { state, dispatch: authDispatch, createCustomer } = useAuth();
-  const [values, setValues] = React.useState<TCreateCustomerValues>({
+  const initValues: TCreateCustomerValues = {
     email: ``,
     firstName: ``,
     lastName: ``,
     password: ``,
     acceptsMarketing: true,
-  });
+  };
+
+  const [status, setStatus] = React.useState<TStatus>(`idle`);
+  const { state, dispatch: authDispatch, createCustomer } = useAuth();
+  const [values, setValues] = React.useState<TCreateCustomerValues>(initValues);
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const valuesCopy = { ...values };
@@ -92,8 +94,11 @@ function CreateCustomerForm() {
         setStatus(`error`);
         console.log(`Errors`, res.customerUserErrors);
       } else if (res && res.customer) {
+        authDispatch({
+          type: EAuthActionType.CREATE,
+          payload: res.customer,
+        });
         setStatus(`success`);
-        console.log(`Success`, res.customer);
       } else {
         throw new Error(`Shold not be here`);
       }

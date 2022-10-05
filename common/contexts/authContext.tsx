@@ -57,7 +57,7 @@ type TAuthProviderProps = { children: React.ReactNode };
 
 /* ===== types for useAuth ===== */
 type TAuthErrors = {
-  code: `BLANK` | `INVALID`;
+  code: `BLANK` | `INVALID` | `TAKEN`;
   field: string[];
   message: string;
 }[];
