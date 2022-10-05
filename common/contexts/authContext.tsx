@@ -57,7 +57,7 @@ type TAuthProviderProps = { children: React.ReactNode };
 
 /* ===== types for useAuth ===== */
 type TAuthErrors = {
-  code: `BLANK` | `INVALID`;
+  code: `BLANK` | `INVALID` | `TAKEN`;
   field: string[];
   message: string;
 }[];
@@ -185,7 +185,7 @@ function useAuth() {
         throw new Error(`should not be here`);
       }
     } catch (error) {
-      console.log(`\n=={ Home GetStaticProps }==\n`);
+      console.log(`\n=={ error in  }==\n`);
       console.error(error);
     }
   }
