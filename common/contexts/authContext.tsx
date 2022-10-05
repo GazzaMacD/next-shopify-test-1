@@ -185,7 +185,7 @@ function useAuth() {
         throw new Error(`should not be here`);
       }
     } catch (error) {
-      console.log(`\n=={ Home GetStaticProps }==\n`);
+      console.log(`\n=={ error in  }==\n`);
       console.error(error);
     }
   }

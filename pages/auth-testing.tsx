@@ -3,7 +3,9 @@ import Head from "next/head";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
+import { useAuth } from "@/common/contexts/authContext";
 import styles from "@/styles/page-styles/Authtesting.module.scss";
+
 // Types
 import { TNextPageWithLayout } from "@/common/types";
 
@@ -44,7 +46,11 @@ type TCreateCustomerValues = {
   [key: string]: string | boolean | undefined;
 };
 
+type TStatus = `idle` | `pending` | `success` | `error`;
+
 function CreateCustomerForm() {
+  const [status, setStatus] = React.useState<TStatus>(`idle`);
+  const { state, dispatch: authDispatch, createCustomer } = useAuth();
   const [values, setValues] = React.useState<TCreateCustomerValues>({
     email: ``,
     firstName: ``,
@@ -52,7 +58,6 @@ function CreateCustomerForm() {
     password: ``,
     acceptsMarketing: true,
   });
-  console.log(values);
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const valuesCopy = { ...values };
@@ -70,9 +75,32 @@ function CreateCustomerForm() {
     setValues(valuesCopy);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    setStatus(`pending`);
     event.preventDefault();
-    console.log(values);
+    const customerValues = {
+      email: values.email as string,
+      firstName: values.firstName as string,
+      lastName: values.lastName as string,
+      password: values.password as string,
+      acceptsMarketing: values.acceptsMarketing as boolean,
+    };
+    console.log(`customerValues`, values);
+    try {
+      const res = await createCustomer(customerValues);
+      if (res && res.customerUserErrors.length) {
+        setStatus(`error`);
+        console.log(`Errors`, res.customerUserErrors);
+      } else if (res && res.customer) {
+        setStatus(`success`);
+        console.log(`Success`, res.customer);
+      } else {
+        throw new Error(`Shold not be here`);
+      }
+    } catch (error) {
+      console.error(`Error in CreateCustomerForm.handleSubmit`);
+      setStatus(`idle`);
+    }
   }
 
   return (
