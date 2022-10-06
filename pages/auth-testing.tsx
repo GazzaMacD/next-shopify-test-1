@@ -4,10 +4,20 @@ import Head from "next/head";
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
 import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
+import { useFormik } from "formik";
 import styles from "@/styles/page-styles/Authtesting.module.scss";
+/* ===================Objectives of this page ==================
+ * 1. all forms in Formik
+ * 2. all validation on client side with Yup
+ * 3. forms must be stylable with global form styles for consistency
+ * 4. all validation on server must map to field errors
+ * 5. form container must have various states available so success for
+ * example shows the user a new state
+ */
 
 // Types
 import { TNextPageWithLayout } from "@/common/types";
+import { values } from "lodash";
 
 const AuthTest: TNextPageWithLayout = (): JSX.Element => {
   return (
@@ -21,7 +31,7 @@ const AuthTest: TNextPageWithLayout = (): JSX.Element => {
       <main>
         <div className="container">
           <h1>AuthTest</h1>
-          <CreateCustomerForm />
+          <FSignUp />
         </div>
       </main>
     </>
@@ -41,6 +51,92 @@ export default AuthTest;
 /*
  * Components
  */
+const FSignUp = () => {
+  return (
+    <div className={styles.AuthForm}>
+      <h2>Sign Up</h2>
+      <FSignUpForm />
+    </div>
+  );
+};
+
+const initSignUpValues = {
+  email: ``,
+  firstName: ``,
+  lastName: ``,
+  password: ``,
+  acceptsMarketing: true,
+};
+
+const FSignUpForm = () => {
+  const formik = useFormik({
+    initialValues: initSignUpValues,
+    onSubmit: (values) => {
+      alert(JSON.stringify(values, null, 2));
+    },
+  });
+  return (
+    <form noValidate onSubmit={formik.handleSubmit}>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="email">email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formik.values.email}
+          onChange={formik.handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="firstName">given name</label>
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          value={formik.values.firstName}
+          onChange={formik.handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="lastName">family name</label>
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          value={formik.values.lastName}
+          onChange={formik.handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="password">password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={formik.values.password}
+          onChange={formik.handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__row}>
+        <input
+          type="checkbox"
+          id="acceptsMarketing"
+          name="acceptsMarketing"
+          checked={formik.values.acceptsMarketing}
+          onChange={formik.handleChange}
+        />
+        <label htmlFor="accceptsMarketing">
+          Would you like to receive emails from us?
+        </label>
+      </div>
+      <div>
+        <button type="submit">Create Account</button>
+      </div>
+    </form>
+  );
+};
+
+// Basic CreateCustomerForm
 
 type TCreateCustomerValues = {
   [key: string]: string | boolean | undefined;
