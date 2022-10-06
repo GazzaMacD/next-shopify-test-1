@@ -94,6 +94,7 @@ function CreateCustomerForm() {
         setStatus(`error`);
         console.log(`Errors`, res.customerUserErrors);
       } else if (res && res.customer) {
+        setValues(initValues);
         authDispatch({
           type: EAuthActionType.CREATE,
           payload: res.customer,
@@ -107,58 +108,71 @@ function CreateCustomerForm() {
       setStatus(`idle`);
     }
   }
+  /* form jsx */
+  let currentJSX = (
+    <form noValidate onSubmit={handleSubmit}>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="email">email</label>
+        <input type="email" id="email" name="email" onChange={handleChange} />
+      </div>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="firstName">given name</label>
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          onChange={handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="lastName">family name</label>
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          onChange={handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__text}>
+        <label htmlFor="password">password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          onChange={handleChange}
+        />
+      </div>
+      <div className={styles.AuthForm__row}>
+        <input
+          type="checkbox"
+          id="acceptsMarketing"
+          name="acceptsMarketing"
+          checked={Boolean(values.acceptsMarketing)}
+          onChange={handleChecked}
+        />
+        <label htmlFor="accceptsMarketing">
+          Would you like to receive emails from us?
+        </label>
+      </div>
+      <div>
+        <button type="submit">Create Account</button>
+      </div>
+    </form>
+  );
+
+  if (status === `success`) {
+    currentJSX = (
+      <div>
+        <p>Success, welcome {state?.customer?.displayName}</p>
+        <button onClick={() => setStatus(`idle`)}>Reset Form</button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.AuthForm}>
       <h2>Create Account</h2>
-      <form noValidate onSubmit={handleSubmit}>
-        <div className={styles.AuthForm__text}>
-          <label htmlFor="email">email</label>
-          <input type="email" id="email" name="email" onChange={handleChange} />
-        </div>
-        <div className={styles.AuthForm__text}>
-          <label htmlFor="firstName">given name</label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            onChange={handleChange}
-          />
-        </div>
-        <div className={styles.AuthForm__text}>
-          <label htmlFor="lastName">family name</label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            onChange={handleChange}
-          />
-        </div>
-        <div className={styles.AuthForm__text}>
-          <label htmlFor="password">password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            onChange={handleChange}
-          />
-        </div>
-        <div className={styles.AuthForm__row}>
-          <input
-            type="checkbox"
-            id="acceptsMarketing"
-            name="acceptsMarketing"
-            checked={Boolean(values.acceptsMarketing)}
-            onChange={handleChecked}
-          />
-          <label htmlFor="accceptsMarketing">
-            Would you like to receive emails from us?
-          </label>
-        </div>
-        <div>
-          <button type="submit">Create Account</button>
-        </div>
-      </form>
+      {currentJSX}
     </div>
   );
 }
