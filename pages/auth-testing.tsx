@@ -9,12 +9,12 @@ import * as Yup from "yup";
 
 import styles from "@/styles/page-styles/Authtesting.module.scss";
 /* ===================Objectives of this page ==================
- * 1. all forms in Formik
- * 2. all validation on client side with Yup
- * 3. forms must be stylable with global form styles for consistency
- * 4. all validation on server must map to field errors
+ * 1. form in Formik (o)
+ * 2. all validation on client side with Yup(o)
+ * 3. forms must be stylable with global form styles for consistency (o)
+ * 4. all validation on server must map to field errors (x)
  * 5. form container must have various states available so success for
- * example shows the user a new state
+ * example shows the user a new state (x)
  */
 
 // Types
@@ -89,11 +89,7 @@ const signUpValidation = (values: TValues) => {
 };
 */
 /* validation schema with yup */
-type TMsgLangs = {
-  en: string;
-  ja: string;
-  vn: string;
-};
+type TMsgLangs = Record<string, string>;
 type TEmailErrMsgs = {
   invalid: TMsgLangs;
   required: TMsgLangs;
