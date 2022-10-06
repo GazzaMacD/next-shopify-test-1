@@ -5,6 +5,8 @@ import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
 import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
 import { useFormik } from "formik";
+import * as Yup from "yup";
+
 import styles from "@/styles/page-styles/Authtesting.module.scss";
 /* ===================Objectives of this page ==================
  * 1. all forms in Formik
@@ -68,7 +70,7 @@ const initSignUpValues: TValues = {
   acceptsMarketing: true,
 };
 
-/* validation function */
+/* validation function 
 const signUpValidation = (values: TValues) => {
   const errors: Record<string, string> = {};
   // email
@@ -85,12 +87,56 @@ const signUpValidation = (values: TValues) => {
   }
   return errors;
 };
+*/
+/* validation schema with yup */
+type TMsgLangs = {
+  en: string;
+  ja: string;
+  vn: string;
+};
+type TEmailErrMsgs = {
+  invalid: TMsgLangs;
+  required: TMsgLangs;
+};
+type TErrMsgs = {
+  email: TEmailErrMsgs;
+};
+type TLocale = `en` | `ja` | `vn`;
+
+const errMsgs: TErrMsgs = {
+  email: {
+    invalid: {
+      en: `Invalid email address`,
+      ja: ``,
+      vn: ``,
+    },
+    required: {
+      en: `Required`,
+      ja: ``,
+      vn: ``,
+    },
+  },
+};
 
 /* form */
-const FSignUpForm = () => {
+type TFSUFProps = {
+  locale: TLocale;
+};
+const FSignUpForm = ({ locale = `en` }: { locale: string }) => {
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email(`${errMsgs.email.invalid[locale]}`)
+      .required(`Required`),
+    firstName: Yup.string(),
+    lastName: Yup.string(),
+    password: Yup.string()
+      .min(10, `Must be 10 characters or more`)
+      .required(`Required`),
+    acceptsMarketing: Yup.boolean(),
+  });
   const formik = useFormik({
     initialValues: initSignUpValues,
-    validate: signUpValidation,
+    validationSchema,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
     },
