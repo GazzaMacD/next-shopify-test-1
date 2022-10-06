@@ -51,16 +51,16 @@ export default AuthTest;
 /*
  * Components
  */
-const FSignUp = () => {
-  return (
-    <div className={styles.AuthForm}>
-      <h2>Sign Up</h2>
-      <FSignUpForm />
-    </div>
-  );
-};
 
-const initSignUpValues = {
+/* ======= Formik Signup Form ========= */
+type TValues = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  acceptsMarketing: boolean;
+};
+const initSignUpValues: TValues = {
   email: ``,
   firstName: ``,
   lastName: ``,
@@ -68,9 +68,28 @@ const initSignUpValues = {
   acceptsMarketing: true,
 };
 
+/* validation function */
+const signUpValidation = (values: TValues) => {
+  const errors: Record<string, string> = {};
+  // email
+  if (!values.email) {
+    errors.email = `Required`;
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = `Invalid email address`;
+  }
+  // password
+  if (!values.password) {
+    errors.password = `Required`;
+  } else if (values.password.length < 10) {
+    errors.password = `Must be 10 characters or more`;
+  }
+  return errors;
+};
+
 const FSignUpForm = () => {
   const formik = useFormik({
     initialValues: initSignUpValues,
+    validate: signUpValidation,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
     },
@@ -86,6 +105,7 @@ const FSignUpForm = () => {
           value={formik.values.email}
           onChange={formik.handleChange}
         />
+        {formik.errors.email ? <div>{formik.errors.email}</div> : null}
       </div>
       <div className={styles.AuthForm__text}>
         <label htmlFor="firstName">given name</label>
@@ -96,6 +116,7 @@ const FSignUpForm = () => {
           value={formik.values.firstName}
           onChange={formik.handleChange}
         />
+        {formik.errors.firstName ? <div>{formik.errors.firstName}</div> : null}
       </div>
       <div className={styles.AuthForm__text}>
         <label htmlFor="lastName">family name</label>
@@ -106,6 +127,7 @@ const FSignUpForm = () => {
           value={formik.values.lastName}
           onChange={formik.handleChange}
         />
+        {formik.errors.lastName ? <div>{formik.errors.lastName}</div> : null}
       </div>
       <div className={styles.AuthForm__text}>
         <label htmlFor="password">password</label>
@@ -116,6 +138,7 @@ const FSignUpForm = () => {
           value={formik.values.password}
           onChange={formik.handleChange}
         />
+        {formik.errors.password ? <div>{formik.errors.password}</div> : null}
       </div>
       <div className={styles.AuthForm__row}>
         <input
@@ -133,6 +156,15 @@ const FSignUpForm = () => {
         <button type="submit">Create Account</button>
       </div>
     </form>
+  );
+};
+
+const FSignUp = () => {
+  return (
+    <div className={styles.AuthForm}>
+      <h2>Sign Up</h2>
+      <FSignUpForm />
+    </div>
   );
 };
 
