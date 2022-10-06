@@ -86,6 +86,7 @@ const signUpValidation = (values: TValues) => {
   return errors;
 };
 
+/* form */
 const FSignUpForm = () => {
   const formik = useFormik({
     initialValues: initSignUpValues,
@@ -103,9 +104,12 @@ const FSignUpForm = () => {
           id="email"
           name="email"
           value={formik.values.email}
+          onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.errors.email ? <div>{formik.errors.email}</div> : null}
+        {formik.touched.email && formik.errors.email ? (
+          <div>{formik.errors.email}</div>
+        ) : null}
       </div>
       <div className={styles.AuthForm__text}>
         <label htmlFor="firstName">given name</label>
@@ -114,9 +118,12 @@ const FSignUpForm = () => {
           id="firstName"
           name="firstName"
           value={formik.values.firstName}
+          onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.errors.firstName ? <div>{formik.errors.firstName}</div> : null}
+        {formik.touched.firstName && formik.errors.firstName ? (
+          <div>{formik.errors.firstName}</div>
+        ) : null}
       </div>
       <div className={styles.AuthForm__text}>
         <label htmlFor="lastName">family name</label>
@@ -125,9 +132,12 @@ const FSignUpForm = () => {
           id="lastName"
           name="lastName"
           value={formik.values.lastName}
+          onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.errors.lastName ? <div>{formik.errors.lastName}</div> : null}
+        {formik.touched.lastName && formik.errors.lastName ? (
+          <div>{formik.errors.lastName}</div>
+        ) : null}
       </div>
       <div className={styles.AuthForm__text}>
         <label htmlFor="password">password</label>
@@ -136,9 +146,12 @@ const FSignUpForm = () => {
           id="password"
           name="password"
           value={formik.values.password}
+          onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.errors.password ? <div>{formik.errors.password}</div> : null}
+        {formik.touched.password && formik.errors.password ? (
+          <div>{formik.errors.password}</div>
+        ) : null}
       </div>
       <div className={styles.AuthForm__row}>
         <input
@@ -146,6 +159,7 @@ const FSignUpForm = () => {
           id="acceptsMarketing"
           name="acceptsMarketing"
           checked={formik.values.acceptsMarketing}
+          onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
         <label htmlFor="accceptsMarketing">
@@ -159,6 +173,7 @@ const FSignUpForm = () => {
   );
 };
 
+/* form wrapper */
 const FSignUp = () => {
   return (
     <div className={styles.AuthForm}>
