@@ -11,15 +11,14 @@ import styles from "@/styles/page-styles/Authtesting.module.scss";
 /* ===================Objectives of this page ==================
  * 1. form in Formik (o)
  * 2. all validation on client side with Yup(o)
- * 3. forms must be stylable with global form styles for consistency (o)
- * 4. all validation on server must map to field errors (x)
- * 5. form container must have various states available so success for
- * example shows the user a new state (x)
+ * 3. forms must be stylable with global form styles for consistency (X)
+ * 4. all validation on server must map to field errors (o)
+ * 5. form container must have various states available so success to display to user (x)
+ * 6. Must have non field errors place (x)
  */
 
 // Types
 import { TNextPageWithLayout } from "@/common/types";
-import { values } from "lodash";
 
 const AuthTest: TNextPageWithLayout = (): JSX.Element => {
   return (
@@ -70,44 +69,37 @@ const initSignUpValues: TValues = {
   acceptsMarketing: true,
 };
 
-/* validation function 
-const signUpValidation = (values: TValues) => {
-  const errors: Record<string, string> = {};
-  // email
-  if (!values.email) {
-    errors.email = `Required`;
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = `Invalid email address`;
-  }
-  // password
-  if (!values.password) {
-    errors.password = `Required`;
-  } else if (values.password.length < 10) {
-    errors.password = `Must be 10 characters or more`;
-  }
-  return errors;
-};
-*/
-/* validation schema with yup */
+/* error messages */
 type TMsgLangs = Record<string, string>;
+type TCommonErrMsgs = {
+  required: TMsgLangs;
+};
 type TEmailErrMsgs = {
   invalid: TMsgLangs;
-  required: TMsgLangs;
+  taken: TMsgLangs;
 };
 type TErrMsgs = {
   email: TEmailErrMsgs;
+  common: TCommonErrMsgs;
 };
 type TLocale = `en` | `ja` | `vn`;
 
 const errMsgs: TErrMsgs = {
+  common: {
+    required: {
+      en: `Required`,
+      ja: ``,
+      vn: ``,
+    },
+  },
   email: {
     invalid: {
       en: `Invalid email address`,
       ja: ``,
       vn: ``,
     },
-    required: {
-      en: `Required`,
+    taken: {
+      en: `This email is taken`,
       ja: ``,
       vn: ``,
     },
@@ -118,25 +110,89 @@ const errMsgs: TErrMsgs = {
 type TFSUFProps = {
   locale: TLocale;
 };
-const FSignUpForm = ({ locale = `en` }: { locale: string }) => {
+
+const FSignUpForm = ({ locale = `en` }: TFSUFProps) => {
+  const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
+  const { state, dispatch: authDispatch, createCustomer } = useAuth();
+
   const validationSchema = Yup.object({
     email: Yup.string()
-      .email(`${errMsgs.email.invalid[locale]}`)
-      .required(`Required`),
+      .required(errMsgs.common.required[locale])
+      // use the test to check validity and also api call to check email is taken or not
+      .test(
+        `email`,
+        async (
+          value: string | undefined,
+          testContext
+        ): Promise<boolean | Yup.ValidationError> => {
+          // required test will catch this
+          if (!value) return true;
+          // check validity of email
+          if (
+            typeof value === `string` &&
+            !value.match(
+              /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            )
+          ) {
+            return testContext.createError({
+              path: `email`,
+              message: errMsgs.email.invalid[locale],
+            });
+          }
+          try {
+            if (!emailsOk.includes(value)) {
+              //only enter if the email is not okayed already, avoids excess calls to api
+              const res = await createCustomer({
+                email: value as string,
+                firstName: ``,
+                lastName: ``,
+                password: ``,
+                acceptsMarketing: false,
+              });
+              const emailTaken =
+                res &&
+                res.customerUserErrors.length &&
+                res.customerUserErrors.some(
+                  (error) =>
+                    error.field.includes(`email`) && error.code === `TAKEN`
+                );
+              if (emailTaken) {
+                // return error if taken and message
+                return testContext.createError({
+                  path: `email`,
+                  message: errMsgs.email.taken[locale],
+                });
+              }
+              // if not taken then set email in emailsOkstate to avoid further api
+              setEmailsOk((emailsOk) => [...emailsOk, value]);
+            }
+            return true;
+          } catch (error) {
+            return testContext.createError({
+              path: `email`,
+              message: `Oops, there is a problem, try again later`,
+            });
+          }
+        }
+      ), // end email
     firstName: Yup.string(),
     lastName: Yup.string(),
     password: Yup.string()
       .min(10, `Must be 10 characters or more`)
-      .required(`Required`),
+      .required(errMsgs.common.required[locale]),
     acceptsMarketing: Yup.boolean(),
-  });
+  }); // end validationSchema
+
   const formik = useFormik({
     initialValues: initSignUpValues,
     validationSchema,
+    validateOnChange: false,
+    validateOnBlur: true,
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
     },
   });
+
   return (
     <form noValidate onSubmit={formik.handleSubmit}>
       <div className={styles.AuthForm__text}>
@@ -220,7 +276,7 @@ const FSignUp = () => {
   return (
     <div className={styles.AuthForm}>
       <h2>Sign Up</h2>
-      <FSignUpForm />
+      <FSignUpForm locale="en" />
     </div>
   );
 };
@@ -233,35 +289,7 @@ type TCreateCustomerValues = {
 
 type TStatus = `idle` | `pending` | `success` | `error`;
 
-function CreateCustomerForm() {
-  const initValues: TCreateCustomerValues = {
-    email: ``,
-    firstName: ``,
-    lastName: ``,
-    password: ``,
-    acceptsMarketing: true,
-  };
-
-  const [status, setStatus] = React.useState<TStatus>(`idle`);
-  const { state, dispatch: authDispatch, createCustomer } = useAuth();
-  const [values, setValues] = React.useState<TCreateCustomerValues>(initValues);
-
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const valuesCopy = { ...values };
-    const name = event.currentTarget.name;
-    if (name in valuesCopy) {
-      valuesCopy[name] = event.currentTarget.value;
-    }
-    setValues(valuesCopy);
-  }
-
-  function handleChecked(event: React.ChangeEvent<HTMLInputElement>) {
-    const valuesCopy = { ...values };
-    const { name } = event.currentTarget;
-    valuesCopy[name] = !valuesCopy[name];
-    setValues(valuesCopy);
-  }
-
+/*
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     setStatus(`pending`);
     event.preventDefault();
@@ -293,71 +321,4 @@ function CreateCustomerForm() {
       setStatus(`idle`);
     }
   }
-  /* form jsx */
-  let currentJSX = (
-    <form noValidate onSubmit={handleSubmit}>
-      <div className={styles.AuthForm__text}>
-        <label htmlFor="email">email</label>
-        <input type="email" id="email" name="email" onChange={handleChange} />
-      </div>
-      <div className={styles.AuthForm__text}>
-        <label htmlFor="firstName">given name</label>
-        <input
-          type="text"
-          id="firstName"
-          name="firstName"
-          onChange={handleChange}
-        />
-      </div>
-      <div className={styles.AuthForm__text}>
-        <label htmlFor="lastName">family name</label>
-        <input
-          type="text"
-          id="lastName"
-          name="lastName"
-          onChange={handleChange}
-        />
-      </div>
-      <div className={styles.AuthForm__text}>
-        <label htmlFor="password">password</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          onChange={handleChange}
-        />
-      </div>
-      <div className={styles.AuthForm__row}>
-        <input
-          type="checkbox"
-          id="acceptsMarketing"
-          name="acceptsMarketing"
-          checked={Boolean(values.acceptsMarketing)}
-          onChange={handleChecked}
-        />
-        <label htmlFor="accceptsMarketing">
-          Would you like to receive emails from us?
-        </label>
-      </div>
-      <div>
-        <button type="submit">Create Account</button>
-      </div>
-    </form>
-  );
-
-  if (status === `success`) {
-    currentJSX = (
-      <div>
-        <p>Success, welcome {state?.customer?.displayName}</p>
-        <button onClick={() => setStatus(`idle`)}>Reset Form</button>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.AuthForm}>
-      <h2>Create Account</h2>
-      {currentJSX}
-    </div>
-  );
-}
+  */
