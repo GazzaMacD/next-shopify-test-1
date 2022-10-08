@@ -11,7 +11,7 @@ import styles from "@/styles/page-styles/Authtesting.module.scss";
 /* ===================Objectives of this page ==================
  * 1. form in Formik (o)
  * 2. all validation on client side with Yup(o)
- * 3. forms must be stylable with global form styles for consistency (X)
+ * 3. forms must be consistent across app with least possible css (X)
  * 4. all validation on server must map to field errors (o)
  * 5. form container must have various states available so success to display to user (x)
  * 6. Must have non field errors place (x)
@@ -195,7 +195,7 @@ const FSignUpForm = ({ locale = `en` }: TFSUFProps) => {
 
   return (
     <form noValidate onSubmit={formik.handleSubmit}>
-      <div className={styles.AuthForm__text}>
+      <div className="v-formgroup">
         <label htmlFor="email">email</label>
         <input
           type="email"
@@ -205,11 +205,13 @@ const FSignUpForm = ({ locale = `en` }: TFSUFProps) => {
           onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.touched.email && formik.errors.email ? (
-          <div>{formik.errors.email}</div>
-        ) : null}
+        <div className="form-error">
+          {formik.touched.email && formik.errors.email ? (
+            <span className="form-error">{formik.errors.email}</span>
+          ) : null}
+        </div>
       </div>
-      <div className={styles.AuthForm__text}>
+      <div className="v-formgroup">
         <label htmlFor="firstName">given name</label>
         <input
           type="text"
@@ -219,11 +221,13 @@ const FSignUpForm = ({ locale = `en` }: TFSUFProps) => {
           onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.touched.firstName && formik.errors.firstName ? (
-          <div>{formik.errors.firstName}</div>
-        ) : null}
+        <div className="form-error">
+          {formik.touched.firstName && formik.errors.firstName ? (
+            <span className="form-error">{formik.errors.firstName}</span>
+          ) : null}
+        </div>
       </div>
-      <div className={styles.AuthForm__text}>
+      <div className="v-formgroup">
         <label htmlFor="lastName">family name</label>
         <input
           type="text"
@@ -233,11 +237,13 @@ const FSignUpForm = ({ locale = `en` }: TFSUFProps) => {
           onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.touched.lastName && formik.errors.lastName ? (
-          <div>{formik.errors.lastName}</div>
-        ) : null}
+        <div className="form-error">
+          {formik.touched.lastName && formik.errors.lastName ? (
+            <span>{formik.errors.lastName}</span>
+          ) : null}
+        </div>
       </div>
-      <div className={styles.AuthForm__text}>
+      <div className="v-formgroup">
         <label htmlFor="password">password</label>
         <input
           type="password"
@@ -247,11 +253,13 @@ const FSignUpForm = ({ locale = `en` }: TFSUFProps) => {
           onBlur={formik.handleBlur}
           onChange={formik.handleChange}
         />
-        {formik.touched.password && formik.errors.password ? (
-          <div>{formik.errors.password}</div>
-        ) : null}
+        <div className="form-error">
+          {formik.touched.password && formik.errors.password ? (
+            <span className="form-error">{formik.errors.password}</span>
+          ) : null}
+        </div>
       </div>
-      <div className={styles.AuthForm__row}>
+      <div className="l-formgroup">
         <input
           type="checkbox"
           id="acceptsMarketing"
