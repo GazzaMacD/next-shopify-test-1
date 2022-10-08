@@ -7,22 +7,4 @@
     margin-bottom: 30px;
     font-size: 2rem;
   }
-  div {
-    margin-bottom: 10px;
-  }
-  &__text {
-    display: flex;
-    flex-direction: column;
-    input {
-      padding: 5px;
-    }
-  }
-  &__check {
-    display: flex;
-    flex-direction: row;
-  }
-  label {
-    text-transform: capitalize;
-    margin-bottom: 5px;
-  }
 }
