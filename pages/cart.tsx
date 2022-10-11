@@ -4,8 +4,8 @@ import Image from "next/image";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
-import { CartIncDec } from "@/components/elements/CartIncDec";
-import { RemoveProdBtn } from "@/components/elements/RemoveProdBtn";
+import { CartIncDec } from "@/components/library/CartIncDec";
+import { RemoveProdBtn } from "@/components/library/RemoveProdBtn";
 import styles from "@/styles/page-styles/Cart.module.scss";
 import { useCart } from "@/common/contexts/cartContext";
 import { currency } from "@/common/utils/general";

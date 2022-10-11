@@ -11,7 +11,7 @@ import styles from "@/styles/page-styles/Home.module.scss";
 import * as colors from "@/common/js_styles/colors";
 import { useCart, EActionType } from "@/common/contexts/cartContext";
 import { currency } from "@/common/utils/general";
-import { CartIncDec } from "@/components/elements/CartIncDec";
+import { CartIncDec } from "@/components/library/CartIncDec";
 // Types
 import { TNextPageWithLayout, TProduct } from "@/common/types";
 

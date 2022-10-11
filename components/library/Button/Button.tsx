@@ -12,18 +12,20 @@ type TBProps = {
   radius?: string;
   width?: string;
   padding?: string;
+  type: `button` | `reset` | `submit` | undefined;
 };
 
 function Button({
   border = `none`,
-  backgroundColor = COLORS[`aliveVGreen`],
-  color = COLORS[`richBlack`],
+  backgroundColor = COLORS[`cheese`],
+  color = COLORS[`chocolate`],
   children,
   height = `auto`,
   clickHandler,
   radius = `0`,
   width = `auto`,
   padding = `1rem 2rem`,
+  type = `button`,
 }: TBProps): JSX.Element {
   return (
     <button
@@ -38,6 +40,7 @@ function Button({
         width,
         padding,
       }}
+      type={type}
     >
       {children}
     </button>
