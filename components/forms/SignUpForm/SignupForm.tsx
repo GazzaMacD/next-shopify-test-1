@@ -64,11 +64,12 @@ const errMsgs: TErrMsgs = {
 type TFSUFProps = {
   locale: TLocale;
 };
+type TStatus = `idle` | `pending` | `success` | `error`;
 
 const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
   const { state, dispatch: authDispatch, createCustomer } = useAuth();
-
+  const [status, setStatus] = React.useState<TStatus>(`idle`);
   const validationSchema = Yup.object({
     email: Yup.string()
       .required(errMsgs.common.required[locale])
@@ -142,12 +143,35 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
     validationSchema,
     validateOnChange: false,
     validateOnBlur: true,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: async (values) => {
+      formik.setSubmitting(true);
+      try {
+        const res = await createCustomer(values);
+        if (res && res.customerUserErrors.length) {
+          formik.setSubmitting(false);
+          setStatus(`error`);
+          console.log(`Errors`, res.customerUserErrors);
+        } else if (res && res.customer) {
+          formik.setValues(initSignUpValues);
+          authDispatch({
+            type: EAuthActionType.CREATE,
+            payload: res.customer,
+          });
+          formik.setSubmitting(false);
+          setStatus(`success`);
+        } else {
+          formik.setSubmitting(false);
+          throw new Error(`Shold not be here`);
+        }
+      } catch (error) {
+        console.error(`Error in CreateCustomerForm.handleSubmit`);
+        formik.setSubmitting(false);
+        setStatus(`idle`);
+      }
     },
   });
 
-  return (
+  const formJSX = (
     <form noValidate onSubmit={formik.handleSubmit} aria-label="Sign Up Form">
       <div className={formStyles.VFormGroup}>
         <label htmlFor="email">email</label>
@@ -250,52 +274,15 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
         </label>
       </div>
 
-      <div className="l-formgroup">
-        <Button
-          radius="4px"
-          clickHandler={() => alert(`clicked`)}
-          type="submit"
-        >
+      <div className={formStyles.LFormgroup}>
+        <Button radius="4px" type="submit">
           Create Account
         </Button>
       </div>
     </form>
   );
+
+  return formJSX;
 };
 
 export { SignupForm };
-// Helper functions
-
-/*
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    setStatus(`pending`);
-    event.preventDefault();
-    const customerValues = {
-      email: values.email as string,
-      firstName: values.firstName as string,
-      lastName: values.lastName as string,
-      password: values.password as string,
-      acceptsMarketing: values.acceptsMarketing as boolean,
-    };
-    console.log(`customerValues`, values);
-    try {
-      const res = await createCustomer(customerValues);
-      if (res && res.customerUserErrors.length) {
-        setStatus(`error`);
-        console.log(`Errors`, res.customerUserErrors);
-      } else if (res && res.customer) {
-        setValues(initValues);
-        authDispatch({
-          type: EAuthActionType.CREATE,
-          payload: res.customer,
-        });
-        setStatus(`success`);
-      } else {
-        throw new Error(`Shold not be here`);
-      }
-    } catch (error) {
-      console.error(`Error in CreateCustomerForm.handleSubmit`);
-      setStatus(`idle`);
-    }
-  }
-  */

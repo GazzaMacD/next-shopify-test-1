@@ -8,7 +8,7 @@ type TBProps = {
   color?: string;
   children?: React.ReactNode;
   height?: string;
-  clickHandler: () => void;
+  clickHandler?: () => void;
   radius?: string;
   width?: string;
   padding?: string;
@@ -27,10 +27,26 @@ function Button({
   padding = `1rem 2rem`,
   type = `button`,
 }: TBProps): JSX.Element {
-  return (
+  return clickHandler ? (
     <button
       className={styles.Button}
       onClick={clickHandler}
+      style={{
+        border,
+        color,
+        backgroundColor,
+        borderRadius: radius,
+        height,
+        width,
+        padding,
+      }}
+      type={type}
+    >
+      {children}
+    </button>
+  ) : (
+    <button
+      className={styles.Button}
       style={{
         border,
         color,
