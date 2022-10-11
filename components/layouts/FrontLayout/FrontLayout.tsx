@@ -1,7 +1,7 @@
 import Head from "next/head";
 
 import { SITE_CONFIG } from "@/common/constants";
-import { Logo } from "@/components/elements/Logo";
+import { Logo } from "@/components/library/Logo";
 import { GlobalHeader } from "@/components/modules/GlobalHeader";
 import styles from "./FrontLayout.module.scss";
 

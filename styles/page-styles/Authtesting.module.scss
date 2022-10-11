@@ -1,10 +1,14 @@
-.AuthForm {
+@import "@/styles/main";
+.AuthWrapper {
   margin: 0 auto;
   max-width: 350px;
   padding: 20px;
+  background-color: white;
   h2 {
     text-align: center;
     margin-bottom: 30px;
     font-size: 2rem;
+    font-weight: 600;
+    color: $chocolate;
   }
 }
