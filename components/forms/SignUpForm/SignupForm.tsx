@@ -68,7 +68,7 @@ type TStatus = `idle` | `pending` | `success` | `error`;
 
 const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
-  const { state, dispatch: authDispatch, createCustomer } = useAuth();
+  const { dispatch: authDispatch, createCustomer } = useAuth();
   const [status, setStatus] = React.useState<TStatus>(`idle`);
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -171,12 +171,16 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
     },
   });
 
-  const formJSX = (
+  let formJSX = (
     <form noValidate onSubmit={formik.handleSubmit} aria-label="Sign Up Form">
       <div className={formStyles.VFormGroup}>
         <label htmlFor="email">email</label>
         <input
-          className={formStyles.EmailInput}
+          className={`${formStyles.EmailInput} ${
+            formik.touched.email && formik.errors.email
+              ? formStyles.EmailInput__error
+              : ``
+          }`}
           type="email"
           id="email"
           name="email"
@@ -196,7 +200,11 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
       <div className={formStyles.VFormGroup}>
         <label htmlFor="firstName">given name</label>
         <input
-          className={formStyles.TextInput}
+          className={`${formStyles.TextInput} ${
+            formik.touched.firstName && formik.errors.firstName
+              ? formStyles.TextInput__error
+              : ``
+          }`}
           type="text"
           id="firstName"
           name="firstName"
@@ -218,7 +226,11 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
       <div className={formStyles.VFormGroup}>
         <label htmlFor="lastName">family name</label>
         <input
-          className={formStyles.TextInput}
+          className={`${formStyles.TextInput} ${
+            formik.touched.lastName && formik.errors.lastName
+              ? formStyles.TextInput__error
+              : ``
+          }`}
           type="text"
           id="lastName"
           name="lastName"
@@ -240,7 +252,11 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
       <div className={formStyles.VFormGroup}>
         <label htmlFor="password">password</label>
         <input
-          className={formStyles.PasswordInput}
+          className={`${formStyles.PasswordInput} ${
+            formik.touched.password && formik.errors.password
+              ? formStyles.PasswordInput__error
+              : ``
+          }`}
           type="password"
           id="password"
           name="password"
@@ -281,6 +297,18 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
       </div>
     </form>
   );
+
+  if (status === `success`) {
+    formJSX = (
+      <div className={formStyles.SuccessfulSubmit}>
+        <h3>Successfully signed up!</h3>
+        <p>Would you like to login?</p>
+        <Button radius="4px" type="button">
+          Login
+        </Button>
+      </div>
+    );
+  }
 
   return formJSX;
 };
