@@ -1,9 +1,11 @@
 import * as React from "react";
 import Head from "next/head";
+import NiceModal from "@ebay/nice-modal-react";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
 import { SignupForm } from "@/components/forms/SignUpForm";
+import { showAuthModal } from "@/components/AuthModal";
 
 import styles from "@/styles/page-styles/Authtesting.module.scss";
 /* ===================Objectives of this page ==================
@@ -37,6 +39,11 @@ const AuthTest: TNextPageWithLayout = (): JSX.Element => {
         <div className="container">
           <AuthWrapper />
         </div>
+        <button onClick={() => showAuthModal(`login`)}>Login</button>
+        <button onClick={() => showAuthModal(`sign-up`)}>Sign Up</button>
+        <button onClick={() => showAuthModal(`reset-password`)}>
+          Reset Password
+        </button>
       </main>
     </>
   );
