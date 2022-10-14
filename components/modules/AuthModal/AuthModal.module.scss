@@ -1,21 +1,24 @@
 @import "@/styles/main";
 .AuthModal {
   padding: 0;
-  border-radius: 4px;
+  min-width: 320px;
+  max-width: 400px;
+  border-radius: 8px;
   &__header {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 4rem;
+    height: 5rem;
     background-color: $cheese;
-    border-radius: 4px 4px 0 0;
+    border-radius: 8px 8px 0 0;
     h2 {
       color: white;
       text-transform: uppercase;
+      letter-spacing: 0.3rem;
       font-weight: 600;
-      font-size: 2rem;
+      font-size: 2.2rem;
     }
     button {
       position: absolute;
@@ -31,9 +34,13 @@
       transition: all 0.3s ease-in-out;
       color: white;
       &:hover {
-        border: white solid 1px;
+        border: $cream solid 0.01rem;
+        filter: brightness(105%);
         cursor: pointer;
       }
     }
+  }
+  &__body {
+    padding: 3.5rem 1.2rem 1.5rem 1.2rem;
   }
 }

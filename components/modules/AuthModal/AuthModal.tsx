@@ -3,6 +3,7 @@ import { Dialog, DialogOverlay, DialogContent } from "@reach/dialog";
 import "@reach/dialog/styles.css";
 
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
+import { SignupForm } from "@/components/forms/SignupForm";
 import styles from "./AuthModal.module.scss";
 
 type TAuthModalType = `login` | `sign-up` | `reset-password`;
@@ -19,7 +20,7 @@ const AuthModal = NiceModal.create(({ modalType }: TAuthModalProps) => {
       form = <LoginForm />;
       break;
     case `sign-up`:
-      form = <SignupForm />;
+      form = <SignupForm locale="en" />;
       break;
     case `reset-password`:
       form = <ResetPasswordForm />;
@@ -33,7 +34,7 @@ const AuthModal = NiceModal.create(({ modalType }: TAuthModalProps) => {
         <h2>{modalType.replace(`-`, ` `)}</h2>
         <button onClick={() => modal.hide()}>X</button>
       </header>
-      {form}
+      <div className={styles.AuthModal__body}>{form}</div>
     </Dialog>
   );
 });
@@ -48,9 +49,6 @@ export { showAuthModal };
 
 function LoginForm() {
   return <div>Login Form</div>;
-}
-function SignupForm() {
-  return <div>Signup Form</div>;
 }
 function ResetPasswordForm() {
   return <div>Reset Password Form</div>;

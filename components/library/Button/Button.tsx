@@ -18,7 +18,7 @@ type TBProps = {
 function Button({
   border = `none`,
   backgroundColor = COLORS[`cheese`],
-  color = COLORS[`chocolate`],
+  color = COLORS[`white`],
   children,
   height = `auto`,
   clickHandler,
