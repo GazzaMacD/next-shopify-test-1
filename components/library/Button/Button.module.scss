@@ -1,6 +1,7 @@
 @import "@/styles/main";
 .Button {
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.1rem;
   &:hover {
     filter: brightness(105%);
     cursor: pointer;

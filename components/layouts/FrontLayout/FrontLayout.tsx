@@ -3,7 +3,7 @@ import Head from "next/head";
 import { SITE_CONFIG } from "@/common/constants";
 import { Logo } from "@/components/library/Logo";
 import { GlobalHeader } from "@/components/modules/GlobalHeader";
-import { showAuthModal } from "@/components/AuthModal";
+import { showAuthModal } from "@/components/modules/AuthModal";
 import styles from "./FrontLayout.module.scss";
 
 type TFLProps = {

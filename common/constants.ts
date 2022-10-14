@@ -9,13 +9,14 @@ export const SITE_CONFIG = {
  * Styles
  */
 export const COLORS: { [key: string]: string } = {
-  cream: ` #f2dfbb`,
-  cheese: ` #f2b441`,
-  platter: ` #a66d03`,
-  chocolate: ` #593a01`,
-  grape: ` #a69b03`,
-  olive: ` #595302`,
-  error: ` #fa6927`,
+  cream: `#f2dfbb`,
+  cheese: `#f2b441`,
+  platter: `#a66d03`,
+  chocolate: `#593a01`,
+  grape: `#a69b03`,
+  olive: `#595302`,
+  error: `#fa6927`,
+  white: `#ffffff`,
 };
 /*
  * Cart

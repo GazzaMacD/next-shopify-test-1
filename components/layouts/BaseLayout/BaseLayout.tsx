@@ -16,11 +16,11 @@ const BaseLayout = ({ children }: TBaseLayout): JSX.Element => {
         <meta name="description" content={SITE_CONFIG.description} />
         <link rel="icon" href="/cheese.png" />
       </Head>
-      <NiceModal.Provider>
-        <AuthProvider>
+      <AuthProvider>
+        <NiceModal.Provider>
           <CartProvider>{children}</CartProvider>
-        </AuthProvider>
-      </NiceModal.Provider>
+        </NiceModal.Provider>
+      </AuthProvider>
     </>
   );
 };
