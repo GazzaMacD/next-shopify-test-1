@@ -65,11 +65,17 @@ type TFSUFProps = {
   locale: TLocale;
 };
 type TStatus = `idle` | `pending` | `success` | `error`;
+type TNonFieldErrors = {
+  message: string;
+}[];
 
 const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
   const { dispatch: authDispatch, createCustomer } = useAuth();
   const [status, setStatus] = React.useState<TStatus>(`idle`);
+  const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
+    []
+  );
   const validationSchema = Yup.object({
     email: Yup.string()
       .required(errMsgs.common.required[locale])
@@ -148,10 +154,18 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
       try {
         const res = await createCustomer(values);
         if (res && res.customerUserErrors.length) {
+          // deal with after submission field errors here
           formik.setSubmitting(false);
           setStatus(`error`);
-          console.log(`Errors`, res.customerUserErrors);
+          res.customerUserErrors.forEach((error) => {
+            formik.setFieldError(error.field[0], error.message);
+          });
+        } else if (res && res.customerUserNonFieldErrors.length) {
+          // deal with non field errors here
+          setStatus(`error`);
+          setNonFieldErrors(res.customerUserNonFieldErrors);
         } else if (res && res.customer) {
+          // success here
           formik.setValues(initSignUpValues);
           authDispatch({
             type: EAuthActionType.CREATE,
@@ -173,6 +187,13 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
 
   let formJSX = (
     <form noValidate onSubmit={formik.handleSubmit} aria-label="Sign Up Form">
+      {nonFieldErrors.length ? (
+        <div className={formStyles.NonFieldError}>
+          {nonFieldErrors.map((error) => (
+            <p key={error.message}>{error.message}</p>
+          ))}
+        </div>
+      ) : null}
       <div className={formStyles.VFormGroup}>
         <label htmlFor="email">email</label>
         <input

@@ -4,6 +4,7 @@ import _ from "lodash";
 import { gql } from "@/common/constants";
 import { fetchShopifyGQL } from "@/common/utils/api";
 import { ELS_Keys } from "@/common/constants";
+import { data } from "cypress/types/jquery";
 // auth reducer
 
 export type TAuthState =
@@ -85,6 +86,11 @@ type TAPICreateCustomerResponse = {
   };
   errors?: Record<string, unknown>[];
 };
+type TCreateCustomerResponse = {
+  customer: null | TAPICreatedCustomer;
+  customerUserErrors: TAuthErrors;
+  customerUserNonFieldErrors: { message: string }[];
+};
 /*
  * authReducer
  */
@@ -148,7 +154,9 @@ function useAuth() {
   }
   const { state, dispatch } = context;
 
-  async function createCustomer(newCustomer: TCreateCustomer) {
+  async function createCustomer(
+    newCustomer: TCreateCustomer
+  ): Promise<TCreateCustomerResponse> {
     const query = gql`
       mutation customerCreate($input: CustomerCreateInput!) {
         customerCreate(input: $input) {
@@ -177,16 +185,29 @@ function useAuth() {
           query,
           variables,
         });
+      const response = {
+        customer: null,
+        customerUserErrors: [],
+        customerUserNonFieldErrors: [],
+      };
       if (errors) {
         throw new Error(JSON.stringify(errors));
       } else if (data) {
-        return data.customerCreate;
+        return { ...response, ...data.customerCreate };
       } else {
         throw new Error(`should not be here`);
       }
     } catch (error) {
-      console.log(`\n=={ error in  }==\n`);
       console.error(error);
+      return {
+        customer: null,
+        customerUserErrors: [],
+        customerUserNonFieldErrors: [
+          {
+            message: `Oops! Sorry something went wrong, try again later please!`,
+          },
+        ],
+      };
     }
   }
 
