@@ -172,7 +172,6 @@ function useAuth() {
   async function loginCustomer(
     loginValues: TEmailPassword
   ): Promise<TLoginCustomerResponse> {
-    await Promise.resolve(`x`);
     const response = {
       accessToken: null,
       expiresAt: null,
@@ -200,6 +199,7 @@ function useAuth() {
       input: loginValues,
     };
     try {
+      await Promise.resolve(`x`);
     } catch (error) {
       console.error(error);
       return {
