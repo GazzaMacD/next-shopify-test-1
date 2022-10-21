@@ -2,6 +2,9 @@
 
 ### Auth forms and modals system
 
+- [ ] Login Form basics
+- [ ] disable submit buttons for Login and Signup on submitting
+- [ ] Logged in state
 - [ ] Check all possible error states
 - [ ] Must have non field errors place
 - [ ] Error boundary around body of form to gracefully deal with any error
