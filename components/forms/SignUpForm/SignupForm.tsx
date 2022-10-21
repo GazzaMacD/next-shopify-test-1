@@ -70,9 +70,6 @@ type TFSUFProps = {
   locale: TLocale;
 };
 type TStatus = `idle` | `pending` | `success` | `error`;
-type TNonFieldErrors = {
-  message: string;
-}[];
 
 const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
@@ -169,7 +166,6 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
         if (res && res.customerUserErrors.length) {
           // deal with all errors here
           formik.setSubmitting(false);
-          formik.set;
           setStatus(`error`);
           res.customerUserErrors.forEach((error) => {
             if (error.field?.length) {
