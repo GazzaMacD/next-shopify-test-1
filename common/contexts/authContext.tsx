@@ -37,6 +37,7 @@ type TAuthAction = {
   type: EAuthActionType.CREATE;
   payload: TCreateCustomerPayload;
 };
+
 /*
   | {
       type: EActionType.INCREMENT;
@@ -57,11 +58,12 @@ type TAuthDispatch = (action: TAuthAction) => void;
 type TAuthProviderProps = { children: React.ReactNode };
 
 /* ===== types for useAuth ===== */
-type TAuthErrors = {
-  code: `BLANK` | `INVALID` | `TAKEN`;
+type TCustomerUserErrors = {
+  code: `BLANK` | `INVALID` | `TAKEN` | `UNKNOWN` | `UNIDENTIFIED_CUSTOMER`;
   field: string[];
   message: string;
 }[];
+type TCustomerUserNonFieldErrors = { message: string }[];
 // createCustomer
 type TCreateCustomer = {
   email: string;
@@ -81,15 +83,28 @@ type TAPICreateCustomerResponse = {
   data?: {
     customerCreate: {
       customer: null | TAPICreatedCustomer;
-      customerUserErrors: TAuthErrors;
+      customerUserErrors: TCustomerUserErrors;
     };
   };
   errors?: Record<string, unknown>[];
 };
 type TCreateCustomerResponse = {
   customer: null | TAPICreatedCustomer;
-  customerUserErrors: TAuthErrors;
-  customerUserNonFieldErrors: { message: string }[];
+  customerUserErrors: TCustomerUserErrors;
+  customerUserNonFieldErrors: TCustomerUserNonFieldErrors;
+};
+/*
+ * Customer Login Types
+ */
+type TEmailPassword = {
+  email: string;
+  password: string;
+};
+type TLoginCustomerResponse = {
+  accessToken: string | null;
+  expiresAt: string | null;
+  customerUserErrors: TCustomerUserErrors;
+  customerUserNonFieldErrors: TCustomerUserNonFieldErrors;
 };
 /*
  * authReducer
@@ -154,6 +169,52 @@ function useAuth() {
   }
   const { state, dispatch } = context;
 
+  async function loginCustomer(
+    loginValues: TEmailPassword
+  ): Promise<TLoginCustomerResponse> {
+    await Promise.resolve(`x`);
+    const response = {
+      accessToken: null,
+      expiresAt: null,
+      customerUserErrors: [],
+      customerUserNonFieldErrors: [],
+    };
+    const query = gql`
+      mutation customerAccessTokenCreate(
+        $input: CustomerAccessTokenCreateInput!
+      ) {
+        customerAccessTokenCreate(input: $input) {
+          customerUserErrors {
+            code
+            field
+            message
+          }
+          customerAccessToken {
+            accessToken
+            expiresAt
+          }
+        }
+      }
+    `;
+    const variables = {
+      input: loginValues,
+    };
+    try {
+    } catch (error) {
+      console.error(error);
+      return {
+        ...response,
+        customerUserErrors: [],
+        customerUserNonFieldErrors: [
+          {
+            message: `Oops! Sorry something went wrong, try again later please!`,
+          },
+        ],
+      };
+    }
+    return response;
+  } // end loginCustomer
+
   async function createCustomer(
     newCustomer: TCreateCustomer
   ): Promise<TCreateCustomerResponse> {
@@ -215,6 +276,7 @@ function useAuth() {
     state,
     dispatch,
     createCustomer,
+    loginCustomer,
   };
 }
 
