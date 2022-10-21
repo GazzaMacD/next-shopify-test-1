@@ -58,9 +58,9 @@ type TAuthDispatch = (action: TAuthAction) => void;
 type TAuthProviderProps = { children: React.ReactNode };
 
 /* ===== types for useAuth ===== */
-type TCustomerUserErrors = {
+export type TCustomerUserErrors = {
   code: `BLANK` | `INVALID` | `TAKEN` | `UNKNOWN` | `UNIDENTIFIED_CUSTOMER`;
-  field: string[];
+  field: string[] | null;
   message: string;
 }[];
 type TCustomerUserNonFieldErrors = { message: string }[];
@@ -91,7 +91,6 @@ type TAPICreateCustomerResponse = {
 type TCreateCustomerResponse = {
   customer: null | TAPICreatedCustomer;
   customerUserErrors: TCustomerUserErrors;
-  customerUserNonFieldErrors: TCustomerUserNonFieldErrors;
 };
 /*
  * Customer Login Types
@@ -218,6 +217,10 @@ function useAuth() {
   async function createCustomer(
     newCustomer: TCreateCustomer
   ): Promise<TCreateCustomerResponse> {
+    const response = {
+      customer: null,
+      customerUserErrors: [],
+    };
     const query = gql`
       mutation customerCreate($input: CustomerCreateInput!) {
         customerCreate(input: $input) {
@@ -246,11 +249,6 @@ function useAuth() {
           query,
           variables,
         });
-      const response = {
-        customer: null,
-        customerUserErrors: [],
-        customerUserNonFieldErrors: [],
-      };
       if (errors) {
         throw new Error(JSON.stringify(errors));
       } else if (data) {
@@ -262,9 +260,10 @@ function useAuth() {
       console.error(error);
       return {
         customer: null,
-        customerUserErrors: [],
-        customerUserNonFieldErrors: [
+        customerUserErrors: [
           {
+            code: `UNKNOWN`,
+            field: null,
             message: `Oops! Sorry something went wrong, try again later please!`,
           },
         ],
