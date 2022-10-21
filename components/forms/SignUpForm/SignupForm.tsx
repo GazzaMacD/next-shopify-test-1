@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
+import { showAuthModal } from "@/components/modules/AuthModal";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
 import styles from "./SignupForm.module.scss";
@@ -71,7 +72,11 @@ type TNonFieldErrors = {
 
 const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
-  const { dispatch: authDispatch, createCustomer } = useAuth();
+  const {
+    state: authState,
+    dispatch: authDispatch,
+    createCustomer,
+  } = useAuth();
   const [status, setStatus] = React.useState<TStatus>(`idle`);
   const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
     []
@@ -323,8 +328,18 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
     formJSX = (
       <div className={formStyles.SuccessfulSubmit}>
         <h3>Successfully signed up!</h3>
+        <p>
+          Thank you for joining us&nbsp;
+          {authState?.customer?.displayName
+            ? authState.customer.displayName
+            : null}
+        </p>
         <p>Would you like to login?</p>
-        <Button radius="4px" type="button">
+        <Button
+          clickHandler={() => showAuthModal(`login`)}
+          radius="4px"
+          type="button"
+        >
           Login
         </Button>
       </div>

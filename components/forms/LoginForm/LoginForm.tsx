@@ -67,7 +67,11 @@ type TNonFieldErrors = {
 
 const LoginForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
-  const { dispatch: authDispatch, createCustomer } = useAuth();
+  const {
+    state: authState,
+    dispatch: authDispatch,
+    createCustomer,
+  } = useAuth();
   const [status, setStatus] = React.useState<TStatus>(`idle`);
   const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
     []
