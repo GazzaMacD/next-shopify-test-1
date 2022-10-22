@@ -1,14 +1,16 @@
 import * as React from "react";
 import { useFormik } from "formik";
+import _ from "lodash";
 import * as Yup from "yup";
 import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
+import { useModal } from "@ebay/nice-modal-react";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
 import styles from "./LoginForm.module.scss";
 
 // types /
-type TValues = {
+type TLoginValues = {
   email: string;
   password: string;
 };
@@ -51,7 +53,7 @@ const errMsgs: TErrMsgs = {
   },
 };
 
-const initLoginValues: TValues = {
+const initLoginValues: TLoginValues = {
   email: ``,
   password: ``,
 };
@@ -66,12 +68,9 @@ type TNonFieldErrors = {
 }[];
 
 const LoginForm = ({ locale = `en` }: TFSUFProps) => {
+  const authModal = useModal();
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
-  const {
-    state: authState,
-    dispatch: authDispatch,
-    createCustomer,
-  } = useAuth();
+  const { state: authState, dispatch: authDispatch, loginCustomer } = useAuth();
   const [status, setStatus] = React.useState<TStatus>(`idle`);
   const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
     []
@@ -115,20 +114,47 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       formik.setSubmitting(true);
-      const msg = await new Promise((resolve) => resolve(`submit still to do`));
-      alert(`${msg} \n ${JSON.stringify(values)}`);
+      const res = await loginCustomer(values);
+
+      if (res.loginSuccess) {
+        setStatus(`success`);
+        formik.setSubmitting(false);
+        formik.setValues(initLoginValues);
+        authModal.hide();
+      } else {
+        setStatus(`error`);
+        setNonFieldErrors(_.cloneDeep(res.customerUserErrors));
+        formik.setSubmitting(false);
+      }
     },
   });
 
   const formJSX = (
-    <form noValidate onSubmit={formik.handleSubmit} aria-label="Login Form">
+    <form
+      noValidate
+      className={formStyles.Form}
+      onSubmit={formik.handleSubmit}
+      aria-label="Login Form"
+    >
       {nonFieldErrors.length ? (
         <div className={formStyles.NonFieldError}>
-          {nonFieldErrors.map((error) => (
-            <p key={error.message}>{error.message}</p>
-          ))}
+          <div>
+            {nonFieldErrors.map((error) => (
+              <span key={error.message}>{error.message}</span>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              setStatus(`idle`);
+              setNonFieldErrors([]);
+              formik.setValues(initLoginValues);
+            }}
+          >
+            X
+          </button>
         </div>
       ) : null}
+
       <div className={formStyles.VFormGroup}>
         <label htmlFor="email">email</label>
         <input

@@ -1,7 +1,11 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
+import {
+  useAuth,
+  EAuthActionType,
+  TCustomerUserErrors,
+} from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
 import { showAuthModal } from "@/components/modules/AuthModal";
 // styles
@@ -66,9 +70,6 @@ type TFSUFProps = {
   locale: TLocale;
 };
 type TStatus = `idle` | `pending` | `success` | `error`;
-type TNonFieldErrors = {
-  message: string;
-}[];
 
 const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
@@ -78,9 +79,8 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
     createCustomer,
   } = useAuth();
   const [status, setStatus] = React.useState<TStatus>(`idle`);
-  const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
-    []
-  );
+  const [nonFieldErrors, setNonFieldErrors] =
+    React.useState<TCustomerUserErrors>([]);
   const validationSchema = Yup.object({
     email: Yup.string()
       .required(errMsgs.common.required[locale])
@@ -108,6 +108,8 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
           try {
             if (!emailsOk.includes(value)) {
               //only enter if the email is not okayed already, avoids excess calls to api
+              // may need to use a debounce function here to limit calls to api due to
+              // rate limiting on shopify
               const res = await createCustomer({
                 email: value as string,
                 firstName: ``,
@@ -115,13 +117,16 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
                 password: ``,
                 acceptsMarketing: false,
               });
+              // check for email field taken errors
               const emailTaken =
-                res &&
                 res.customerUserErrors.length &&
-                res.customerUserErrors.some(
-                  (error) =>
-                    error.field.includes(`email`) && error.code === `TAKEN`
-                );
+                res.customerUserErrors.some((error) => {
+                  if (error.field) {
+                    return (
+                      error.field.includes(`email`) && error.code === `TAKEN`
+                    );
+                  }
+                });
               if (emailTaken) {
                 // return error if taken and message
                 return testContext.createError({
@@ -134,10 +139,9 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
             }
             return true;
           } catch (error) {
-            return testContext.createError({
-              path: `email`,
-              message: `Oops, there is a problem, try again later`,
-            });
+            console.error(error);
+            // pass error as not the target
+            return true;
           }
         }
       ), // end email
@@ -159,16 +163,18 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
       try {
         const res = await createCustomer(values);
         if (res && res.customerUserErrors.length) {
-          // deal with after submission field errors here
+          // deal with all errors here
           formik.setSubmitting(false);
           setStatus(`error`);
           res.customerUserErrors.forEach((error) => {
-            formik.setFieldError(error.field[0], error.message);
+            if (error.field?.length) {
+              // field errors
+              formik.setFieldError(error.field[1], error.message);
+            } else {
+              // non field errors
+              setNonFieldErrors((prevState) => [...prevState, error]);
+            }
           });
-        } else if (res && res.customerUserNonFieldErrors.length) {
-          // deal with non field errors here
-          setStatus(`error`);
-          setNonFieldErrors(res.customerUserNonFieldErrors);
         } else if (res && res.customer) {
           // success here
           formik.setValues(initSignUpValues);
