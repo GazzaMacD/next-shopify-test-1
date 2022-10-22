@@ -2,6 +2,10 @@
 /* 
 * Forms 
 */
+.Form {
+  position: relative;
+  padding-top: 30px;
+}
 .VFormGroup {
   //V = vertical
   display: flex;
@@ -43,6 +47,38 @@
     color: $error;
     line-height: 0.2rem;
     font-size: 1.1rem;
+  }
+}
+.NonFieldError {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba($error, 0.3);
+  top: -20px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.5rem;
+  span {
+    color: $error;
+    line-height: 0.2rem;
+    font-size: 1.1rem;
+  }
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: transparent solid 0.1rem;
+    border-radius: 8px;
+    color: $error;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    &:hover {
+      cursor: pointer;
+      background-color: rgba($error, 0.3);
+    }
   }
 }
 

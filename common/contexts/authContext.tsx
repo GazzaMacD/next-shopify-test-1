@@ -15,9 +15,9 @@ export type TAuthState =
         firstName?: string;
         lastName?: string;
         acceptsMarketing?: boolean;
-      };
-      accessToken?: string;
-      expiresAt?: string;
+      } | null;
+      accessToken: string | null;
+      expiresAt: string | null;
     }
   | Record<string, never>; // empty object
 
@@ -28,15 +28,25 @@ export type TCreateCustomerPayload = {
   lastName?: string;
   acceptsMarketing?: boolean;
 };
+export type TLoginPayload = {
+  accessToken: string;
+  expiresAt: string;
+};
 
 export enum EAuthActionType {
   CREATE = `CREATE`,
+  LOGIN = `LOGIN`,
 }
 
-type TAuthAction = {
-  type: EAuthActionType.CREATE;
-  payload: TCreateCustomerPayload;
-};
+type TAuthAction =
+  | {
+      type: EAuthActionType.CREATE;
+      payload: TCreateCustomerPayload;
+    }
+  | {
+      type: EAuthActionType.LOGIN;
+      payload: TLoginPayload;
+    };
 
 /*
   | {
@@ -58,13 +68,36 @@ type TAuthDispatch = (action: TAuthAction) => void;
 type TAuthProviderProps = { children: React.ReactNode };
 
 /* ===== types for useAuth ===== */
+/*
+ * Auth Base Types
+ */
 export type TCustomerUserErrors = {
   code: `BLANK` | `INVALID` | `TAKEN` | `UNKNOWN` | `UNIDENTIFIED_CUSTOMER`;
   field: string[] | null;
   message: string;
 }[];
-type TCustomerUserNonFieldErrors = { message: string }[];
-// createCustomer
+
+type TAPIBaseResponse = {
+  errors?: Record<string, unknown>[];
+};
+type TAPICustomer = {
+  email: string;
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  acceptsMarketing: boolean;
+};
+/*
+ * Customer Query Types
+ */
+type TAPICustomerQueryResponse = TAPIBaseResponse & {
+  data?: {
+    customer: TAPICustomer | null;
+  };
+};
+/*
+ * Customer Create Types
+ */
 type TCreateCustomer = {
   email: string;
   password: string;
@@ -72,24 +105,16 @@ type TCreateCustomer = {
   lastName: string;
   acceptsMarketing: boolean;
 };
-type TAPICreatedCustomer = {
-  email: string;
-  displayName: string;
-  firstName: string;
-  lastName: string;
-  acceptsMarketing: boolean;
-};
-type TAPICreateCustomerResponse = {
+type TAPICreateCustomerResponse = TAPIBaseResponse & {
   data?: {
     customerCreate: {
-      customer: null | TAPICreatedCustomer;
+      customer: null | TAPICustomer;
       customerUserErrors: TCustomerUserErrors;
     };
   };
-  errors?: Record<string, unknown>[];
 };
 type TCreateCustomerResponse = {
-  customer: null | TAPICreatedCustomer;
+  customer: null | TAPICustomer;
   customerUserErrors: TCustomerUserErrors;
 };
 /*
@@ -100,11 +125,23 @@ type TEmailPassword = {
   password: string;
 };
 type TLoginCustomerResponse = {
-  accessToken: string | null;
-  expiresAt: string | null;
+  loginSuccess: boolean;
   customerUserErrors: TCustomerUserErrors;
-  customerUserNonFieldErrors: TCustomerUserNonFieldErrors;
 };
+//api
+type TCustomerAccessTokenCreate = {
+  customerUserErrors: TCustomerUserErrors;
+  customerAccessToken: {
+    accessToken: string;
+    expiresAt: string;
+  } | null;
+};
+type TAPICustomerAccessTokenCreate = TAPIBaseResponse & {
+  data?: {
+    customerAccessTokenCreate: TCustomerAccessTokenCreate;
+  };
+};
+
 /*
  * authReducer
  */
@@ -114,6 +151,11 @@ function authReducer(state: TAuthState, action: TAuthAction): TAuthState {
   switch (action.type) {
     case EAuthActionType.CREATE: {
       stateCpy.customer = action.payload;
+      return stateCpy;
+    }
+    case EAuthActionType.LOGIN: {
+      stateCpy.accessToken = action.payload.accessToken;
+      stateCpy.expiresAt = action.payload.expiresAt;
       return stateCpy;
     }
     default:
@@ -168,16 +210,15 @@ function useAuth() {
   }
   const { state, dispatch } = context;
 
+  // login
   async function loginCustomer(
     loginValues: TEmailPassword
   ): Promise<TLoginCustomerResponse> {
-    const response = {
-      accessToken: null,
-      expiresAt: null,
+    const response: TLoginCustomerResponse = {
+      loginSuccess: false,
       customerUserErrors: [],
-      customerUserNonFieldErrors: [],
     };
-    const query = gql`
+    const tokenCreateQuery = gql`
       mutation customerAccessTokenCreate(
         $input: CustomerAccessTokenCreateInput!
       ) {
@@ -194,24 +235,76 @@ function useAuth() {
         }
       }
     `;
-    const variables = {
+    const tokenCreateVariables = {
       input: loginValues,
     };
     try {
-      await Promise.resolve(`x`);
+      const { data: tokenCreateData, errors: tokenCreateErrors } =
+        await fetchShopifyGQL<TAPICustomerAccessTokenCreate>({
+          query: tokenCreateQuery,
+          variables: tokenCreateVariables,
+        });
+      if (tokenCreateErrors) {
+        throw new Error(JSON.stringify(tokenCreateErrors));
+      } else if (
+        tokenCreateData &&
+        tokenCreateData.customerAccessTokenCreate.customerUserErrors.length
+      ) {
+        // has errors so throw and  errors on to catch
+        throw new Error(`Errors in customeAccessTokenCreate`);
+      } else if (
+        tokenCreateData &&
+        tokenCreateData.customerAccessTokenCreate?.customerAccessToken
+      ) {
+        //set authstate here
+        dispatch({
+          type: EAuthActionType.LOGIN,
+          payload:
+            tokenCreateData.customerAccessTokenCreate.customerAccessToken,
+        });
+        // get customer data here
+        const customerQuery = gql`
+        query{
+          customer(customerAccessToken: "${tokenCreateData.customerAccessTokenCreate.customerAccessToken.accessToken}") {
+    firstName
+    lastName
+		displayName
+    email
+  }
+        }`;
+        const { data: customerData, errors: customerErrors } =
+          await fetchShopifyGQL<TAPICustomerQueryResponse>({
+            query: customerQuery,
+          });
+        if (customerErrors || !customerData?.customer) {
+          // something must be wrong with token so throw error
+          // this is a double check, is it correct?
+          throw new Error(`token error`);
+        } else {
+          //set customer on dispatch here
+          dispatch({
+            type: EAuthActionType.CREATE,
+            payload: customerData.customer,
+          });
+        }
+        return { ...response, loginSuccess: true };
+      } else {
+        throw new Error(`should not be here`);
+      }
     } catch (error) {
-      console.error(error);
+      // no console.errors here for security
+      // would be better to send errors here to some error service
       return {
         ...response,
-        customerUserErrors: [],
-        customerUserNonFieldErrors: [
+        customerUserErrors: [
           {
-            message: `Oops! Sorry something went wrong, try again later please!`,
+            code: `UNKNOWN`,
+            field: null,
+            message: `Sorry, please try again!`,
           },
         ],
       };
     }
-    return response;
   } // end loginCustomer
 
   async function createCustomer(
@@ -252,6 +345,7 @@ function useAuth() {
       if (errors) {
         throw new Error(JSON.stringify(errors));
       } else if (data) {
+        // should be setting authContext state here for personalized message
         return { ...response, ...data.customerCreate };
       } else {
         throw new Error(`should not be here`);
@@ -259,7 +353,7 @@ function useAuth() {
     } catch (error) {
       console.error(error);
       return {
-        customer: null,
+        ...response,
         customerUserErrors: [
           {
             code: `UNKNOWN`,
