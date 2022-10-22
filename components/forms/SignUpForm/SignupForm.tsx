@@ -139,10 +139,9 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
             }
             return true;
           } catch (error) {
-            return testContext.createError({
-              path: `email`,
-              message: `Oops, there is a problem, try again later`,
-            });
+            console.error(error);
+            // pass error as not the target
+            return true;
           }
         }
       ), // end email
