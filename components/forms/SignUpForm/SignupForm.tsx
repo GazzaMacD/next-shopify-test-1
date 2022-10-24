@@ -8,6 +8,7 @@ import {
 } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
 import { showAuthModal } from "@/components/modules/AuthModal";
+import { TLocale, errMsgs } from "@/common/constants";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
 import styles from "./SignupForm.module.scss";
@@ -26,43 +27,6 @@ const initSignUpValues: TValues = {
   lastName: ``,
   password: ``,
   acceptsMarketing: true,
-};
-
-/* error messages */
-type TMsgLangs = Record<string, string>;
-type TCommonErrMsgs = {
-  required: TMsgLangs;
-};
-type TEmailErrMsgs = {
-  invalid: TMsgLangs;
-  taken: TMsgLangs;
-};
-type TErrMsgs = {
-  email: TEmailErrMsgs;
-  common: TCommonErrMsgs;
-};
-type TLocale = `en` | `ja` | `vn`;
-
-const errMsgs: TErrMsgs = {
-  common: {
-    required: {
-      en: `Required`,
-      ja: ``,
-      vn: ``,
-    },
-  },
-  email: {
-    invalid: {
-      en: `Invalid email address`,
-      ja: ``,
-      vn: ``,
-    },
-    taken: {
-      en: `This email is taken`,
-      ja: ``,
-      vn: ``,
-    },
-  },
 };
 
 /* form */

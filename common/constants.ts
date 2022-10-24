@@ -27,3 +27,49 @@ export enum ELS_Keys {
   CART = `__cart__`,
   AUTH = `__azx__`,
 }
+/*
+ * Forms
+ */
+/* error messages */
+type TMsgLangs = Record<string, string>;
+type TCommonErrMsgs = {
+  required: TMsgLangs;
+  trim: TMsgLangs;
+};
+type TEmailErrMsgs = {
+  invalid: TMsgLangs;
+  taken: TMsgLangs;
+};
+type TErrMsgs = {
+  email: TEmailErrMsgs;
+  common: TCommonErrMsgs;
+};
+export type TLocale = `en` | `ja` | `vn`;
+
+// helpers and consts /
+export const errMsgs: TErrMsgs = {
+  common: {
+    required: {
+      en: `Required`,
+      ja: ``,
+      vn: ``,
+    },
+    trim: {
+      en: `There should not be any whitespaces`,
+      ja: ``,
+      vn: ``,
+    },
+  },
+  email: {
+    invalid: {
+      en: `Invalid email address`,
+      ja: ``,
+      vn: ``,
+    },
+    taken: {
+      en: `This email is taken`,
+      ja: ``,
+      vn: ``,
+    },
+  },
+};
