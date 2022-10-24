@@ -256,7 +256,7 @@ function useAuth() {
       } else {
         throw new Error(`should not be here`);
       }
-    } catch (error) {
+    } catch {
       // no console.errors here for security
       // would be better to send errors here to some error service
       return {
