@@ -162,10 +162,10 @@ function authReducer(state: TAuthState, action: TAuthAction): TAuthState {
   }
 }
 /*
- * Cart Context
+ * Auth Context
  */
 
-const CartContext = React.createContext<
+const AuthContext = React.createContext<
   | {
       state: TAuthState;
       dispatch: TAuthDispatch;
@@ -196,14 +196,14 @@ function AuthProvider({ children }: TAuthProviderProps) {
   }, [state]);
 
   const value = { state, dispatch };
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 /*
  * useAuth Custom Hook
  */
 function useAuth() {
-  const context = React.useContext(CartContext);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error(`useCart must be used within a CartProvider`);
   }
@@ -224,15 +224,14 @@ function useAuth() {
           return;
         }
         try {
-          const customerQuery = gql`
-        query{
-          customer(customerAccessToken: "${state.accessToken}") {
-            firstName
-            lastName
-            displayName
-            email
-          }
-        }`;
+          const customerQuery = gql`query{
+            customer(customerAccessToken: "${state.accessToken}") {
+              firstName
+              lastName
+              displayName
+              email
+            }
+          }`;
           const { data, errors } =
             await fetchShopifyGQL<TAPICustomerQueryResponse>({
               query: customerQuery,
@@ -245,7 +244,6 @@ function useAuth() {
             setIsAuthorized(true);
           }
         } catch (error) {
-          console.error(error);
           setIsAuthorized(false);
           return;
         } //catch
@@ -255,6 +253,12 @@ function useAuth() {
     };
     checkAuth();
   }, [state]);
+
+  //logout
+  function logoutCustomer() {
+    //check for token
+    //set
+  }
 
   // login
   async function loginCustomer(
