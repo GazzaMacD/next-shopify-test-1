@@ -1,149 +1,32 @@
 import * as React from "react";
 import _ from "lodash";
-
 import { gql } from "@/common/constants";
+//app imports
 import { fetchShopifyGQL } from "@/common/utils/api";
 import { ELS_Keys } from "@/common/constants";
-// auth reducer
-
-export type TAuthState =
-  | {
-      customer: {
-        displayName: string; // email, phone number or name
-        email: string;
-        firstName?: string;
-        lastName?: string;
-        acceptsMarketing?: boolean;
-      } | null;
-      accessToken: string | null;
-      expiresAt: string | null;
-    }
-  | Record<string, never>; // empty object
-
-export type TCreateCustomerPayload = {
-  displayName: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  acceptsMarketing?: boolean;
-};
-export type TLoginPayload = {
-  accessToken: string;
-  expiresAt: string;
-};
-
-export enum EAuthActionType {
-  CREATE = `CREATE`,
-  LOGIN = `LOGIN`,
-}
-
-type TAuthAction =
-  | {
-      type: EAuthActionType.CREATE;
-      payload: TCreateCustomerPayload;
-    }
-  | {
-      type: EAuthActionType.LOGIN;
-      payload: TLoginPayload;
-    };
+//type imports
+import {
+  EAuthActionType,
+  TAPICreateCustomerResponse,
+  TAPICustomerAccessTokenCreate,
+  TAPICustomerAccessTokenDelete,
+  TAPICustomerQueryResponse,
+  TAuthAction,
+  TAuthDispatch,
+  TAuthProviderProps,
+  TAuthState,
+  TCreateCustomer,
+  TCreateCustomerResponse,
+  TEmailPassword,
+  TLoginCustomerResponse,
+} from "@/common/types";
 
 /*
-  | {
-      type: EActionType.INCREMENT;
-      payload: TProduct | TProductQ;
-    }
-  | {
-      type: EActionType.DECREMENT;
-      payload: TProduct | TProductQ;
-    }
-  | {
-      type: EActionType.REMOVE;
-      payload: TProduct;
-    };
-    */
-
-type TAuthDispatch = (action: TAuthAction) => void;
-
-type TAuthProviderProps = { children: React.ReactNode };
-
-/* ===== types for useAuth ===== */
-/*
- * Auth Base Types
+ * authReducer and AuthContext
  */
-export type TCustomerUserErrors = {
-  code: `BLANK` | `INVALID` | `TAKEN` | `UNKNOWN` | `UNIDENTIFIED_CUSTOMER`;
-  field: string[] | null;
-  message: string;
-}[];
 
-type TAPIBaseResponse = {
-  errors?: Record<string, unknown>[];
-};
-type TAPICustomer = {
-  email: string;
-  displayName: string;
-  firstName: string;
-  lastName: string;
-  acceptsMarketing: boolean;
-};
-/*
- * Customer Query Types
- */
-type TAPICustomerQueryResponse = TAPIBaseResponse & {
-  data?: {
-    customer: TAPICustomer | null;
-  };
-};
-/*
- * Customer Create Types
- */
-type TCreateCustomer = {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  acceptsMarketing: boolean;
-};
-type TAPICreateCustomerResponse = TAPIBaseResponse & {
-  data?: {
-    customerCreate: {
-      customer: null | TAPICustomer;
-      customerUserErrors: TCustomerUserErrors;
-    };
-  };
-};
-type TCreateCustomerResponse = {
-  customer: null | TAPICustomer;
-  customerUserErrors: TCustomerUserErrors;
-};
-/*
- * Customer Login Types
- */
-type TEmailPassword = {
-  email: string;
-  password: string;
-};
-type TLoginCustomerResponse = {
-  loginSuccess: boolean;
-  customerUserErrors: TCustomerUserErrors;
-};
-//api
-type TCustomerAccessTokenCreate = {
-  customerUserErrors: TCustomerUserErrors;
-  customerAccessToken: {
-    accessToken: string;
-    expiresAt: string;
-  } | null;
-};
-type TAPICustomerAccessTokenCreate = TAPIBaseResponse & {
-  data?: {
-    customerAccessTokenCreate: TCustomerAccessTokenCreate;
-  };
-};
+const initValue: TAuthState = {};
 
-/*
- * authReducer
- */
 function authReducer(state: TAuthState, action: TAuthAction): TAuthState {
   const stateCpy = _.cloneDeep(state);
 
@@ -157,14 +40,17 @@ function authReducer(state: TAuthState, action: TAuthAction): TAuthState {
       stateCpy.expiresAt = action.payload.expiresAt;
       return stateCpy;
     }
+    case EAuthActionType.LOGOUT: {
+      return initValue;
+    }
     default:
       throw new Error(`Unhandled action type - ${JSON.stringify(action)}`);
   }
 }
+
 /*
  * Auth Context
  */
-
 const AuthContext = React.createContext<
   | {
       state: TAuthState;
@@ -188,7 +74,6 @@ function initAuth(initVal: TAuthState) {
  */
 
 function AuthProvider({ children }: TAuthProviderProps) {
-  const initValue: TAuthState = {};
   const [state, dispatch] = React.useReducer(authReducer, initValue, initAuth);
 
   React.useEffect(() => {
@@ -255,9 +140,39 @@ function useAuth() {
   }, [state]);
 
   //logout
-  function logoutCustomer() {
-    //check for token
-    //set
+  async function logoutCustomer() {
+    //check for token if token then delete token on server
+    if (state?.accessToken) {
+      try {
+        const tokenDeleteQuery = gql`
+          mutation customerAccessTokenDelete($customerAccessToken: String!) {
+            customerAccessTokenDelete(
+              customerAccessToken: $customerAccessToken
+            ) {
+              deletedAccessToken
+              deletedCustomerAccessTokenId
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `;
+        const tokenDeleteVariables = {
+          customerAccessToken: state.accessToken,
+        };
+        await fetchShopifyGQL<TAPICustomerAccessTokenDelete>({
+          query: tokenDeleteQuery,
+          variables: tokenDeleteVariables,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    // always set the auth context to empty object
+    dispatch({
+      type: EAuthActionType.LOGOUT,
+    });
   }
 
   // login
@@ -341,7 +256,7 @@ function useAuth() {
       } else {
         throw new Error(`should not be here`);
       }
-    } catch (error) {
+    } catch {
       // no console.errors here for security
       // would be better to send errors here to some error service
       return {
@@ -421,6 +336,7 @@ function useAuth() {
     dispatch,
     createCustomer,
     loginCustomer,
+    logoutCustomer,
     isAuthorized,
   };
 }

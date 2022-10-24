@@ -12,7 +12,7 @@ type TFLProps = {
   children: React.ReactNode;
 };
 const FrontLayout = ({ children }: TFLProps): JSX.Element => {
-  const { isAuthorized } = useAuth();
+  const { isAuthorized, logoutCustomer } = useAuth();
   console.log(`Is Authorized -->`, isAuthorized);
   return (
     <>
@@ -32,14 +32,11 @@ const FrontLayout = ({ children }: TFLProps): JSX.Element => {
             <a>Checkout</a>
           </Link>
           {isAuthorized ? (
-            <button onClick={() => alert(`Logout`)}>Logout</button>
+            <button onClick={() => logoutCustomer()}>Logout</button>
           ) : (
             <button onClick={() => showAuthModal(`login`)}>Login</button>
           )}
           <button onClick={() => showAuthModal(`sign-up`)}>Sign Up</button>
-          <button onClick={() => showAuthModal(`reset-password`)}>
-            Reset Password
-          </button>
         </div>
       </GlobalHeader>
       {children}
