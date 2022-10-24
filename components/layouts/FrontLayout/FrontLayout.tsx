@@ -37,9 +37,6 @@ const FrontLayout = ({ children }: TFLProps): JSX.Element => {
             <button onClick={() => showAuthModal(`login`)}>Login</button>
           )}
           <button onClick={() => showAuthModal(`sign-up`)}>Sign Up</button>
-          <button onClick={() => showAuthModal(`reset-password`)}>
-            Reset Password
-          </button>
         </div>
       </GlobalHeader>
       {children}

@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
 import { useModal } from "@ebay/nice-modal-react";
+import { showAuthModal } from "@/components/modules/AuthModal";
 import { TLocale, errMsgs } from "@/common/constants";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
@@ -177,6 +178,11 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
           Login
         </Button>
       </div>
+      <p className={styles.Reset}>
+        <button onClick={() => showAuthModal(`reset-password`)}>
+          Forgot your password?
+        </button>
+      </p>
     </form>
   );
 

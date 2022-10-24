@@ -1,0 +1,14 @@
+@import "@/styles/main";
+.Reset {
+  margin-bottom: 2rem;
+  & button {
+    all: unset;
+    cursor: pointer;
+    border-bottom: solid 2px transparent;
+    padding-bottom: 0.5rem;
+    color: $cheese;
+    &:hover {
+      border-bottom: solid 2px $cheese;
+    }
+  }
+}
