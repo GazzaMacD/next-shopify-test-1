@@ -1,1 +1,13 @@
 @import "@/styles/main";
+.RightMenu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  font-size: 1.5rem;
+  & button {
+    border: none;
+    background-color: transparent;
+    font-size: 1.5rem;
+  }
+}

@@ -4,7 +4,6 @@ import _ from "lodash";
 import { gql } from "@/common/constants";
 import { fetchShopifyGQL } from "@/common/utils/api";
 import { ELS_Keys } from "@/common/constants";
-import { data } from "cypress/types/jquery";
 // auth reducer
 
 export type TAuthState =
@@ -209,6 +208,53 @@ function useAuth() {
     throw new Error(`useCart must be used within a CartProvider`);
   }
   const { state, dispatch } = context;
+  const [isAuthorized, setIsAuthorized] = React.useState(false);
+
+  //set is Authorized
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      if (!state?.accessToken) {
+        setIsAuthorized(false);
+        return;
+      } else if (state.accessToken && state.expiresAt) {
+        const expiry = new Date(state.expiresAt);
+        const current = new Date();
+        if (current >= expiry) {
+          setIsAuthorized(false);
+          return;
+        }
+        try {
+          const customerQuery = gql`
+        query{
+          customer(customerAccessToken: "${state.accessToken}") {
+            firstName
+            lastName
+            displayName
+            email
+          }
+        }`;
+          const { data, errors } =
+            await fetchShopifyGQL<TAPICustomerQueryResponse>({
+              query: customerQuery,
+            });
+          if (errors || !data?.customer) {
+            setIsAuthorized(false);
+            return;
+          } else {
+            //ok here
+            setIsAuthorized(true);
+          }
+        } catch (error) {
+          console.error(error);
+          setIsAuthorized(false);
+          return;
+        } //catch
+      } else {
+        setIsAuthorized(false);
+      }
+    };
+    checkAuth();
+  }, [state]);
 
   // login
   async function loginCustomer(
@@ -266,11 +312,11 @@ function useAuth() {
         const customerQuery = gql`
         query{
           customer(customerAccessToken: "${tokenCreateData.customerAccessTokenCreate.customerAccessToken.accessToken}") {
-    firstName
-    lastName
-		displayName
-    email
-  }
+            firstName
+            lastName
+            displayName
+            email
+          }
         }`;
         const { data: customerData, errors: customerErrors } =
           await fetchShopifyGQL<TAPICustomerQueryResponse>({
@@ -307,6 +353,7 @@ function useAuth() {
     }
   } // end loginCustomer
 
+  // create customer
   async function createCustomer(
     newCustomer: TCreateCustomer
   ): Promise<TCreateCustomerResponse> {
@@ -370,6 +417,7 @@ function useAuth() {
     dispatch,
     createCustomer,
     loginCustomer,
+    isAuthorized,
   };
 }
 

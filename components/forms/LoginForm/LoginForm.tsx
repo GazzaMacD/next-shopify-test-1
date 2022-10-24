@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
 import { useModal } from "@ebay/nice-modal-react";
+import { TLocale, errMsgs } from "@/common/constants";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
 import styles from "./LoginForm.module.scss";
@@ -13,44 +14,6 @@ import styles from "./LoginForm.module.scss";
 type TLoginValues = {
   email: string;
   password: string;
-};
-
-/* error messages */
-type TMsgLangs = Record<string, string>;
-type TCommonErrMsgs = {
-  required: TMsgLangs;
-};
-type TEmailErrMsgs = {
-  invalid: TMsgLangs;
-  taken: TMsgLangs;
-};
-type TErrMsgs = {
-  email: TEmailErrMsgs;
-  common: TCommonErrMsgs;
-};
-type TLocale = `en` | `ja` | `vn`;
-
-// helpers and consts /
-const errMsgs: TErrMsgs = {
-  common: {
-    required: {
-      en: `Required`,
-      ja: ``,
-      vn: ``,
-    },
-  },
-  email: {
-    invalid: {
-      en: `Invalid email address`,
-      ja: ``,
-      vn: ``,
-    },
-    taken: {
-      en: `This email is taken`,
-      ja: ``,
-      vn: ``,
-    },
-  },
 };
 
 const initLoginValues: TLoginValues = {
@@ -77,7 +40,9 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
   );
   const validationSchema = Yup.object({
     email: Yup.string()
+      .strict(true)
       .required(errMsgs.common.required[locale])
+      .trim(errMsgs.common.trim[locale])
       // use the test to check validity and also api call to check email is taken or not
       .test(
         `email`,
@@ -103,6 +68,8 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
         }
       ), // end email
     password: Yup.string()
+      .strict(true)
+      .trim(errMsgs.common.trim[locale])
       .min(10, `Must be 10 characters or more`)
       .required(errMsgs.common.required[locale]),
   }); // end validationSchema
