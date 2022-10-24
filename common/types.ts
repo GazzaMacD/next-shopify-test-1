@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import * as React from "react";
+import { string } from "yup";
 
 export type TNextPageWithLayout<P = Record<string, never>, IP = P> = NextPage<
   P,
@@ -60,6 +61,7 @@ export type TLoginPayload = {
 export enum EAuthActionType {
   CREATE = `CREATE`,
   LOGIN = `LOGIN`,
+  LOGOUT = `LOGOUT`,
 }
 
 export type TAuthAction =
@@ -70,6 +72,9 @@ export type TAuthAction =
   | {
       type: EAuthActionType.LOGIN;
       payload: TLoginPayload;
+    }
+  | {
+      type: EAuthActionType.LOGOUT;
     };
 
 export type TAuthDispatch = (action: TAuthAction) => void;
@@ -99,6 +104,20 @@ export type TAPICustomer = {
 export type TAPICustomerQueryResponse = TAPIBaseResponse & {
   data?: {
     customer: TAPICustomer | null;
+  };
+};
+// logout Customer Types
+export type TCustomerAccessTokenDelete = {
+  deletedAccessToken: string;
+  deletedCustomerAccessTokenId: string;
+  userErrors: {
+    field: string;
+    message: string;
+  }[];
+} | null;
+export type TAPICustomerAccessTokenDelete = TAPIBaseResponse & {
+  data?: {
+    customerAccessTokenDelete: TCustomerAccessTokenDelete;
   };
 };
 

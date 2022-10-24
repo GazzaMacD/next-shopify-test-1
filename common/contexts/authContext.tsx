@@ -9,6 +9,7 @@ import {
   EAuthActionType,
   TAPICreateCustomerResponse,
   TAPICustomerAccessTokenCreate,
+  TAPICustomerAccessTokenDelete,
   TAPICustomerQueryResponse,
   TAuthAction,
   TAuthDispatch,
@@ -21,8 +22,11 @@ import {
 } from "@/common/types";
 
 /*
- * authReducer
+ * authReducer and AuthContext
  */
+
+const initValue: TAuthState = {};
+
 function authReducer(state: TAuthState, action: TAuthAction): TAuthState {
   const stateCpy = _.cloneDeep(state);
 
@@ -35,6 +39,9 @@ function authReducer(state: TAuthState, action: TAuthAction): TAuthState {
       stateCpy.accessToken = action.payload.accessToken;
       stateCpy.expiresAt = action.payload.expiresAt;
       return stateCpy;
+    }
+    case EAuthActionType.LOGOUT: {
+      return initValue;
     }
     default:
       throw new Error(`Unhandled action type - ${JSON.stringify(action)}`);
@@ -67,7 +74,6 @@ function initAuth(initVal: TAuthState) {
  */
 
 function AuthProvider({ children }: TAuthProviderProps) {
-  const initValue: TAuthState = {};
   const [state, dispatch] = React.useReducer(authReducer, initValue, initAuth);
 
   React.useEffect(() => {
@@ -134,9 +140,39 @@ function useAuth() {
   }, [state]);
 
   //logout
-  function logoutCustomer() {
-    //check for token
-    //set
+  async function logoutCustomer() {
+    //check for token if token then delete token on server
+    if (state?.accessToken) {
+      try {
+        const tokenDeleteQuery = gql`
+          mutation customerAccessTokenDelete($customerAccessToken: String!) {
+            customerAccessTokenDelete(
+              customerAccessToken: $customerAccessToken
+            ) {
+              deletedAccessToken
+              deletedCustomerAccessTokenId
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `;
+        const tokenDeleteVariables = {
+          customerAccessToken: state.accessToken,
+        };
+        await fetchShopifyGQL<TAPICustomerAccessTokenDelete>({
+          query: tokenDeleteQuery,
+          variables: tokenDeleteVariables,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    // always set the auth context to empty object
+    dispatch({
+      type: EAuthActionType.LOGOUT,
+    });
   }
 
   // login
@@ -300,6 +336,7 @@ function useAuth() {
     dispatch,
     createCustomer,
     loginCustomer,
+    logoutCustomer,
     isAuthorized,
   };
 }
