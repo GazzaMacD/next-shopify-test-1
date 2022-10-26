@@ -28,6 +28,10 @@ export type TProductNoQ = TProduct;
 export type TProductQ = TProduct & {
   quantity: number;
 };
+/*
+ * General Form Types
+ */
+export type TFormStatus = `idle` | `pending` | `success` | `error`;
 
 /*
  * Auth Types
@@ -106,6 +110,24 @@ export type TAPICustomerQueryResponse = TAPIBaseResponse & {
     customer: TAPICustomer | null;
   };
 };
+// request password reset types
+export type TRequestResetValues = {
+  email: string;
+};
+export type TCustomerRecover = {
+  customerUserErrors: TCustomerUserErrors;
+} | null;
+
+export type TAPIRequestReset = TAPIBaseResponse & {
+  data?: {
+    customerRecover: TCustomerRecover;
+  };
+};
+export type TRequestResetResponse = {
+  requestResetSuccess: boolean;
+  customerUserErrors: TCustomerUserErrors;
+};
+
 // logout Customer Types
 export type TCustomerAccessTokenDelete = {
   deletedAccessToken: string;
@@ -135,7 +157,7 @@ export type TAPICreateCustomerResponse = TAPIBaseResponse & {
       customer: null | TAPICustomer;
       customerUserErrors: TCustomerUserErrors;
     };
-  };
+  } | null;
 };
 export type TCreateCustomerResponse = {
   customer: null | TAPICustomer;

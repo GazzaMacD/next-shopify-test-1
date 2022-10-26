@@ -11,6 +11,7 @@ import {
   TAPICustomerAccessTokenCreate,
   TAPICustomerAccessTokenDelete,
   TAPICustomerQueryResponse,
+  TAPIRequestReset,
   TAuthAction,
   TAuthDispatch,
   TAuthProviderProps,
@@ -19,6 +20,8 @@ import {
   TCreateCustomerResponse,
   TEmailPassword,
   TLoginCustomerResponse,
+  TRequestResetResponse,
+  TRequestResetValues,
 } from "@/common/types";
 
 /*
@@ -138,6 +141,61 @@ function useAuth() {
     };
     checkAuth();
   }, [state]);
+
+  //request reset
+  async function requestReset(
+    requestResetValues: TRequestResetValues
+  ): Promise<TRequestResetResponse> {
+    const response: TRequestResetResponse = {
+      requestResetSuccess: false,
+      customerUserErrors: [],
+    };
+    const requestResetQuery = gql`
+      mutation customerRecover($email: String!) {
+        customerRecover(email: $email) {
+          customerUserErrors {
+            code
+            field
+            message
+          }
+        }
+      }
+    `;
+    const requestResetVariables = {
+      email: requestResetValues.email,
+    };
+    try {
+      const { data, errors } = await fetchShopifyGQL<TAPIRequestReset>({
+        query: requestResetQuery,
+        variables: requestResetVariables,
+      });
+      if (errors) {
+        throw new Error(JSON.stringify(errors));
+      } else if (
+        data &&
+        data.customerRecover &&
+        !data.customerRecover.customerUserErrors.length
+      ) {
+        response.requestResetSuccess = true;
+        return response;
+      } else {
+        throw new Error(`Something else went wrong`);
+      }
+    } catch {
+      // no console.errors here for security
+      // would be better to send errors here to some error service
+      return {
+        ...response,
+        customerUserErrors: [
+          {
+            code: `UNKNOWN`,
+            field: null,
+            message: `Sorry, please try again!`,
+          },
+        ],
+      };
+    }
+  }
 
   //logout
   async function logoutCustomer() {
@@ -334,6 +392,7 @@ function useAuth() {
   return {
     state,
     dispatch,
+    requestReset,
     createCustomer,
     loginCustomer,
     logoutCustomer,

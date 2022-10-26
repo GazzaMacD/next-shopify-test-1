@@ -4,38 +4,32 @@ import _ from "lodash";
 import * as Yup from "yup";
 import { useAuth } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
-import { useModal } from "@ebay/nice-modal-react";
 import { showAuthModal } from "@/components/modules/AuthModal";
 import { TLocale, errMsgs } from "@/common/constants";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
 import styles from "./RequestResetForm.module.scss";
-
 // types /
-type TRRValues = {
-  email: string;
-};
+import {
+  TCustomerUserErrors,
+  TFormStatus,
+  TRequestResetValues,
+} from "@/common/types";
 
-const initLoginValues: TRRValues = {
-  email: ``,
+type TFRRFProps = {
+  locale: TLocale;
 };
 
 /* form */
-type TFSUFProps = {
-  locale: TLocale;
+const initLoginValues: TRequestResetValues = {
+  email: ``,
 };
-type TStatus = `idle` | `pending` | `success` | `error`;
-type TNonFieldErrors = {
-  message: string;
-}[];
 
-const RequestResetForm = ({ locale = `en` }: TFSUFProps) => {
-  const authModal = useModal();
-  const { loginCustomer } = useAuth();
-  const [, setStatus] = React.useState<TStatus>(`idle`);
-  const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
-    []
-  );
+const RequestResetForm = ({ locale = `en` }: TFRRFProps) => {
+  const { requestReset } = useAuth();
+  const [status, setStatus] = React.useState<TFormStatus>(`idle`);
+  const [nonFieldErrors, setNonFieldErrors] =
+    React.useState<TCustomerUserErrors>([]);
   const validationSchema = Yup.object({
     email: Yup.string()
       .strict(true)
@@ -72,15 +66,13 @@ const RequestResetForm = ({ locale = `en` }: TFSUFProps) => {
     validationSchema,
     validateOnChange: false,
     validateOnBlur: true,
-    onSubmit: async (values) => {
+    onSubmit: async (values: TRequestResetValues) => {
       formik.setSubmitting(true);
-      const res = await loginCustomer(values);
+      const res = await requestReset(values);
 
-      if (res.loginSuccess) {
+      if (res.requestResetSuccess) {
         setStatus(`success`);
         formik.setSubmitting(false);
-        formik.setValues(initLoginValues);
-        authModal.hide();
       } else {
         setStatus(`error`);
         setNonFieldErrors(_.cloneDeep(res.customerUserErrors));
@@ -89,7 +81,7 @@ const RequestResetForm = ({ locale = `en` }: TFSUFProps) => {
     },
   });
 
-  const formJSX = (
+  let formJSX = (
     <form
       noValidate
       className={formStyles.Form}
@@ -151,7 +143,17 @@ const RequestResetForm = ({ locale = `en` }: TFSUFProps) => {
       </p>
     </form>
   );
-
+  if (status === `success`) {
+    formJSX = (
+      <div className={formStyles.SuccessfulSubmit}>
+        <h3>Reset Email Sent!</h3>
+        <p>
+          We have sent an email to the email you provided. If it is not in your
+          inbox please check your junk mail.
+        </p>
+      </div>
+    );
+  }
   return formJSX;
 };
 
