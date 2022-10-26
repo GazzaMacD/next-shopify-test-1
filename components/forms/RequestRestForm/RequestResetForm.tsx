@@ -9,17 +9,15 @@ import { showAuthModal } from "@/components/modules/AuthModal";
 import { TLocale, errMsgs } from "@/common/constants";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
-import styles from "./LoginForm.module.scss";
+import styles from "./RequestResetForm.module.scss";
 
 // types /
-type TLoginValues = {
+type TRRValues = {
   email: string;
-  password: string;
 };
 
-const initLoginValues: TLoginValues = {
+const initLoginValues: TRRValues = {
   email: ``,
-  password: ``,
 };
 
 /* form */
@@ -31,7 +29,7 @@ type TNonFieldErrors = {
   message: string;
 }[];
 
-const LoginForm = ({ locale = `en` }: TFSUFProps) => {
+const RequestResetForm = ({ locale = `en` }: TFSUFProps) => {
   const authModal = useModal();
   const { loginCustomer } = useAuth();
   const [, setStatus] = React.useState<TStatus>(`idle`);
@@ -67,11 +65,6 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
           return true;
         }
       ), // end email
-    password: Yup.string()
-      .strict(true)
-      .trim(errMsgs.common.trim[locale])
-      .min(10, `Must be 10 characters or more`)
-      .required(errMsgs.common.required[locale]),
   }); // end validationSchema
 
   const formik = useFormik({
@@ -146,40 +139,14 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
         </div>
       </div>
 
-      <div className={formStyles.VFormGroup}>
-        <label htmlFor="password">password</label>
-        <input
-          className={`${formStyles.PasswordInput} ${
-            formik.touched.password && formik.errors.password
-              ? formStyles.PasswordInput__error
-              : ``
-          }`}
-          type="password"
-          id="password"
-          name="password"
-          value={formik.values.password}
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          aria-invalid={Boolean(
-            formik.touched.password && formik.errors.password
-          )}
-          aria-errormessage="password-error"
-        />
-        <div className={formStyles.FieldError}>
-          {formik.touched.password && formik.errors.password ? (
-            <span id="password-error">{formik.errors.password}</span>
-          ) : null}
-        </div>
-      </div>
-
       <div className={formStyles.LFormgroup}>
         <Button radius="4px" type="submit">
-          Login
+          Request Reset
         </Button>
       </div>
-      <p className={styles.Reset}>
-        <button onClick={() => showAuthModal(`request-reset-password`)}>
-          Forgot your password?
+      <p className={styles.BackToLogin}>
+        <button onClick={() => showAuthModal(`login`)}>
+          Go back to login?
         </button>
       </p>
     </form>
@@ -188,4 +155,4 @@ const LoginForm = ({ locale = `en` }: TFSUFProps) => {
   return formJSX;
 };
 
-export { LoginForm };
+export { RequestResetForm };
