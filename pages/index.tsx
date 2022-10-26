@@ -8,8 +8,7 @@ import { FrontLayout } from "@/components/layouts/FrontLayout";
 import { gql } from "@/common/constants";
 import { fetchShopifyGQL } from "@/common/utils/api";
 import styles from "@/styles/page-styles/Home.module.scss";
-import * as colors from "@/common/js_styles/colors";
-import { useCart, EActionType } from "@/common/contexts/cartContext";
+import { useCart } from "@/common/contexts/cartContext";
 import { currency } from "@/common/utils/general";
 import { CartIncDec } from "@/components/library/CartIncDec";
 // Types
@@ -75,13 +74,7 @@ type TControlsProps = {
 };
 
 const ProductCardControls = ({ product }: TControlsProps) => {
-  const {
-    state: cart,
-    addProduct,
-    remProduct,
-    incProduct,
-    decProduct,
-  } = useCart();
+  const { state: cart, addProduct, remProduct } = useCart();
   // inCart --> in useEffect to avoid hydration errors
   const [inCart, setInCart] = React.useState(false);
   React.useEffect(() => {

@@ -18,7 +18,7 @@ const AuthModal = NiceModal.create(({ modalType }: TAuthModalProps) => {
   let form: JSX.Element;
   switch (modalType) {
     case `login`:
-      form = <LoginForm />;
+      form = <LoginForm locale="en" />;
       break;
     case `sign-up`:
       form = <SignupForm locale="en" />;

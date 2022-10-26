@@ -1,8 +1,6 @@
-import { jsx } from "@emotion/react";
 import styled from "@emotion/styled";
 //import { keyframes } from "@emotion/core";
 import * as colors from "@/common/js_styles/colors";
-import * as mq from "@/common/js_styles/media-queries";
 
 const CircleButton = styled.button({
   borderRadius: `30px`,
