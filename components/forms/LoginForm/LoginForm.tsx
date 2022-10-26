@@ -2,7 +2,7 @@ import * as React from "react";
 import { useFormik } from "formik";
 import _ from "lodash";
 import * as Yup from "yup";
-import { useAuth, EAuthActionType } from "@/common/contexts/authContext";
+import { useAuth } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
 import { useModal } from "@ebay/nice-modal-react";
 import { showAuthModal } from "@/components/modules/AuthModal";
@@ -33,9 +33,8 @@ type TNonFieldErrors = {
 
 const LoginForm = ({ locale = `en` }: TFSUFProps) => {
   const authModal = useModal();
-  const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
-  const { state: authState, dispatch: authDispatch, loginCustomer } = useAuth();
-  const [status, setStatus] = React.useState<TStatus>(`idle`);
+  const { loginCustomer } = useAuth();
+  const [, setStatus] = React.useState<TStatus>(`idle`);
   const [nonFieldErrors, setNonFieldErrors] = React.useState<TNonFieldErrors>(
     []
   );

@@ -8,7 +8,7 @@ type TRPBtnProps = {
 };
 
 function RemoveProdBtn({ product }: TRPBtnProps) {
-  const { state: cart, remProduct } = useCart();
+  const { remProduct } = useCart();
   return (
     <button className={styles.RemProdBtn} onClick={() => remProduct(product)}>
       <FaTrashAlt />

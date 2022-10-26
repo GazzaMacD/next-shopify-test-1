@@ -1,17 +1,14 @@
 import * as React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  useAuth,
-  EAuthActionType,
-  TCustomerUserErrors,
-} from "@/common/contexts/authContext";
+import { useAuth } from "@/common/contexts/authContext";
 import { Button } from "@/components/library/Button";
 import { showAuthModal } from "@/components/modules/AuthModal";
 import { TLocale, errMsgs } from "@/common/constants";
 // styles
 import formStyles from "@/components/forms/formStyles.module.scss";
-import styles from "./SignupForm.module.scss";
+//import styles from "./SignupForm.module.scss";
+import { TCustomerUserErrors, EAuthActionType } from "@/common/types";
 
 /* ======= Formik Signup Form ========= */
 type TValues = {

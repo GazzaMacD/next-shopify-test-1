@@ -60,7 +60,7 @@ function CartTable() {
     if (!isEmpty) {
       setCurrCode(Object.values(cart)[0].currencyCode);
     }
-  }, [isEmpty]);
+  }, [cart, isEmpty]);
 
   return (
     <div className={styles.CTable}>

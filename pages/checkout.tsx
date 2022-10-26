@@ -3,7 +3,7 @@ import Head from "next/head";
 
 import { BaseLayout } from "@/components/layouts/BaseLayout/BaseLayout";
 import { FrontLayout } from "@/components/layouts/FrontLayout";
-import styles from "@/styles/page-styles/Checkout.module.scss";
+//import styles from "@/styles/page-styles/Checkout.module.scss";
 // Types
 import { TNextPageWithLayout } from "@/common/types";
 
