@@ -3,9 +3,9 @@ import { Dialog /*DialogOverlay, DialogContent */ } from "@reach/dialog";
 import "@reach/dialog/styles.css";
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 
-import { SignupForm } from "@/components/forms/SignupForm";
 import styles from "./AuthModal.module.scss";
 import { LoginForm } from "@/components/forms/LoginForm";
+import { SignupForm } from "@/components/forms/SignupForm";
 import { RequestResetForm } from "@/components/forms/RequestRestForm";
 
 type TAuthModalType = `login` | `sign-up` | `request-reset-password`;
