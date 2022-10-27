@@ -21,6 +21,7 @@ export async function fetchShopifyGQL<ResponseData>({
   const fnName = `fetchShopifyGQL`;
   const token =
     process.env.NEXT_PUBLIC_STORE_FRONT_ACCESS_TOKEN ?? `invalid token`;
+  console.log(`Token value is`, token);
   const config = {
     method: `POST`,
     headers: {
