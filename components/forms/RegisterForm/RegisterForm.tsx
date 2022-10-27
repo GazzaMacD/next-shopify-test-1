@@ -32,7 +32,7 @@ type TFSUFProps = {
 };
 type TStatus = `idle` | `pending` | `success` | `error`;
 
-const SignupForm = ({ locale = `en` }: TFSUFProps) => {
+const RegisterForm = ({ locale = `en` }: TFSUFProps) => {
   const [emailsOk, setEmailsOk] = React.useState<string[]>([]);
   const {
     state: authState,
@@ -316,4 +316,4 @@ const SignupForm = ({ locale = `en` }: TFSUFProps) => {
   return formJSX;
 };
 
-export { SignupForm };
+export { RegisterForm };

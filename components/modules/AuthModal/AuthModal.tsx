@@ -5,7 +5,7 @@ import NiceModal, { useModal } from "@ebay/nice-modal-react";
 
 import styles from "./AuthModal.module.scss";
 import { LoginForm } from "@/components/forms/LoginForm";
-import { SignupForm } from "../../forms/SignupForm";
+import { RegisterForm } from "@/components/forms/RegisterForm";
 import { RequestResetForm } from "@/components/forms/RequestRestForm";
 
 type TAuthModalType = `login` | `sign-up` | `request-reset-password`;
@@ -22,7 +22,7 @@ const AuthModal = NiceModal.create(({ modalType }: TAuthModalProps) => {
       form = <LoginForm locale="en" />;
       break;
     case `sign-up`:
-      form = <SignupForm locale="en" />;
+      form = <RegisterForm locale="en" />;
       break;
     case `request-reset-password`:
       form = <RequestResetForm locale="en" />;
